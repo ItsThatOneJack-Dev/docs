@@ -71,8 +71,8 @@
         {
             "group": "Projects",
             "pages": [
-                "projects/VEX/microwave",
-                "projects/VEX/icarus"
+                "projects/vex/microwave",
+                "projects/vex/icarus"
             ]
         },
         {
