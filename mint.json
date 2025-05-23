@@ -7,12 +7,12 @@
     },
     "favicon": "/favicon.svg",
     "colors": {
-        "primary": "#0D9373",
-        "light": "#07C983",
-        "dark": "#0D9373",
+        "primary": "#8B5CF6",
+        "light": "#8B5CF6",
+        "dark": "#8B5CF6",
         "anchors": {
-            "from": "#0D9373",
-            "to": "#07C983"
+            "from": "#8B5CF6",
+            "to": "#8B5CF6"
         }
     },
     "topbarLinks": [
@@ -33,9 +33,9 @@
     ],
     "anchors": [
         {
-            "name": "Documentation",
+            "name": "Home Page",
             "icon": "book-open-cover",
-            "url": "https://mintlify.com/docs"
+            "url": "https://itoj.dev"
         },
         {
             "name": "Community",
