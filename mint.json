@@ -1,7 +1,10 @@
 {
     "$schema": "https://mintlify.com/schema.json",
     "name": "ItsThatOneJack Docs",
-    "logo": "/logo/dark.png",
+    "logo": {
+      "light":"/logo/light.png",
+      "dark":"/logo/dark.png"
+    },
     "favicon": "/favicon.svg",
     "colors": {
         "primary": "#8B5CF6",
