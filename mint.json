@@ -5,7 +5,7 @@
       "light":"/logo/light.png",
       "dark":"/logo/dark.png"
     },
-    "favicon": "https://itoj.dev/web-app-manifest-192x192.png",
+    "favicon": "/favicon.png",
     "colors": {
         "primary": "#8B5CF6",
         "light": "#8B5CF6",
