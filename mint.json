@@ -5,7 +5,7 @@
       "light":"/logo/light.png",
       "dark":"/logo/dark.png"
     },
-    "favicon": "/favicon.svg",
+    "favicon": "https://itoj.dev/web-app-manifest-192x192.png",
     "colors": {
         "primary": "#8B5CF6",
         "light": "#8B5CF6",
@@ -19,6 +19,10 @@
         {
             "name": "Mintlify Dashboard",
             "url": "https://dashboard.mintlify.com"
+        },
+        {
+            "name": "Mintlify Help",
+            "url": "https://mintlify.com/docs"
         }
     ],
     "topbarCtaButton": {
@@ -26,6 +30,10 @@
         "url": "https://itoj.dev"
     },
     "tabs": [
+        {
+            "name": "Projects",
+            "url": "projects"
+        },
         {
             "name": "VEX Robotics",
             "url": "vex"
@@ -36,16 +44,6 @@
             "name": "Home Page",
             "icon": "book-open-cover",
             "url": "https://itoj.dev"
-        },
-        {
-            "name": "Community",
-            "icon": "slack",
-            "url": "https://mintlify.com/community"
-        },
-        {
-            "name": "Blog",
-            "icon": "newspaper",
-            "url": "https://mintlify.com/blog"
         }
     ],
     "navigation": [
@@ -69,9 +67,15 @@
             ]
         },
         {
-            "group": "VEX Robotics",
+            "group": "Robots",
             "pages": [
                 "vex/microwave"
+            ]
+        },
+        {
+            "group": "Twoblade",
+            "pages": [
+                "projects/bios"
             ]
         }
     ],
