@@ -17,18 +17,18 @@
     },
     "topbarLinks": [
         {
-            "name": "Support",
-            "url": "mailto:hi@mintlify.com"
+            "name": "Mintlify Dashboard",
+            "url": "https://dashboard.mintlify.com"
         }
     ],
     "topbarCtaButton": {
-        "name": "Dashboard",
-        "url": "https://dashboard.mintlify.com"
+        "name": "Home",
+        "url": "https://itoj.dev"
     },
     "tabs": [
         {
-            "name": "API Reference",
-            "url": "api-reference"
+            "name": "VEX Robotics",
+            "url": "vex"
         }
     ],
     "anchors": [
@@ -92,6 +92,11 @@
     "footerSocials": {
         "x": "https://x.com/ITOJOfficial",
         "github": "https://github.com/ItsThatOneJack-Dev",
-        "discord": "https://discordapp.com/users/900821876018929664"
+        "discord": "https://discordapp.com/users/900821876018929664",
+        "website": "https://itoj.dev"
+    },
+    "modeToggle": {
+        "default": "dark",
+        "isHidden": true
     }
 }
