@@ -1,0 +1,98 @@
+---
+title: "Getting Data"
+---
+
+<Info>
+  Getting data normally is best for fetching data about objects, such as Users and Coins, but if you want to track live transactions or similar, use events.
+</Info>
+
+<AccordionGroup>
+  <Accordion title="Fetching Data About a Coin">
+    Fetching data about a coin is quite trivial, RugplaySDK provides a function specifically for it!
+
+    Here's how you get a coin's data, see the `Objects` page to learn about the returned object's  properties:
+
+    ```javascript
+    await window.rugplaySDK.getCoin("COIN_SYMBOL")
+    ```
+
+    <Warning>
+      Do not include the `*` in the coin symbol you pass to `getCoin`, if you are handling user input, strip it of non-alphanumeric characters.
+    </Warning>
+    <Info>
+      `getUser` should return null if it is passed invalid data or encounters an error.
+    </Info>
+  </Accordion>
+  <Accordion title="Fetching Data About a User">
+    Fetching data about a user is quite trivial, RugplaySDK provides a function specifically for it!
+
+    Here's how you get a user's data, see the `Objects` page to learn about the returned object's properties:
+
+    ```javascript
+    await window.rugplaySDK.getUser("USERNAME_OR_ID")
+    ```
+
+    <Info>
+      You can pass a user's numeric ID, such as `300`, or their username, such as `itoj` to `getUser`, however providing a display name will either not work at all, or will return the wrong value.
+    </Info>
+    <Info>
+      `getUser` should return null if it is passed invalid data or encounters an error.
+    </Info>
+  </Accordion>
+  <Accordion title="Fetching Your Balance">
+    There are various types of "balance" in RugPlay, if you want solely your cash balance, that is your liquid networth, use the following:
+
+    ```javascript
+    await window.rugplaySDK.getBalance();
+    ```
+
+    If you want solely your gems balance, use the following:
+
+    ```javascript
+    await window.rugplaySDK.getGemsBalance();
+    ```
+
+    If you want your networth (which does not factor in gems), use the following:
+
+    ```javascript
+    await window.rugplaySDK.getNetWorth();
+    ```
+
+    <Warning>
+      All three balance/networth-fetching functions default to `0` if the value cannot be ascertained due to an error. Chances are you should not need to work around this, though it is good to keep in mind.
+    </Warning>
+  </Accordion>
+  <Accordion title="Fetching Your Owned Name Colours">
+    To fetch a list of the name colours/effects you own, use the following:
+
+    ```javascript
+    await window.rugplaySDK.getOwnedNameColours();
+    ```
+  </Accordion>
+  <Accordion title="Fetching Your Held Coins">
+    To fetch the coins you hold, use the following:
+
+    ```javascript
+    await window.rugplaySDK.getHoldings();
+    ```
+
+    <Warning>
+      `getHoldings` does not return a dict or array of `Coin` objects, as this would require a web request for every single held coin, using up bandwidth and slowing the response of the command.
+
+      Information on how best to retrieve a `Coin` object, or all of them from the data provided by `getHoldings` is available on the `Objects` page.
+    </Warning>
+  </Accordion>
+  <Accordion title="Fetching How Much of a Coin You Own">
+    To fetch data about how much of a particular coin you own, use the following:
+
+    ```javascript
+    await window.rugplaySDK.getHeldAmount("COIN_SYMBOL");
+    ```
+
+    <Warning>
+      `getheldAmount` will return `0` if the value cannot be ascertained due to an error. Chances are you should not need to work around this, though it is good to keep in mind.
+    </Warning>
+  </Accordion>
+</AccordionGroup>
+
+To learn how to send data, such as for making trades, transfers and bets, see the `Sending Data` page.

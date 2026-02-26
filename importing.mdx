@@ -1,0 +1,62 @@
+---
+title: "Importing"
+---
+
+Depending on how you plan to use the RugplaySDK, the way you import/require it will be quite different, select a section below to find out how to get it set up for your use.
+
+<AccordionGroup>
+  <Accordion title="JavaScript">
+    <AccordionGroup>
+      <Accordion title="Userscript Managers">
+        RugplaySDK can work as either a standalone userscript, providing utilities to other scripts, or as a dependency in another script, if you are developing a script, it is recommended you use RugplaySDK as a dependency, if you were directed here to install RugplaySDK, you are likely looking for the standalone version.
+
+        <AccordionGroup>
+          <Accordion title="Standalone">
+            To use RugplaySDK as a standalone userscript, perform the following steps.
+
+            <Steps>
+              <Step title="Step 1">
+                Visit [here](https://github.com/ItsThatOneJack-Dev/rugplaysdk/raw/refs/heads/main/RugplaySDK.user.js).
+              </Step>
+              <Step title="Step 2">
+                Wait for your userscript manager to pop up.
+              </Step>
+              <Step title="Step 3">
+                Click "Install" or "Update".
+              </Step>
+            </Steps>
+          </Accordion>
+          <Accordion title="As A Dependency">
+            In your script's headers, add:
+
+            ```javascript
+            // @require https://github.com/ItsThatOneJack-Dev/rugplaysdk/raw/refs/heads/main/RugplaySDK.user.js
+            ```
+
+            Here's an example:
+
+            ```javascript
+            // ==UserScript==
+            // @name         Rugplay Premium
+            // @namespace    https://itoj.dev/
+            // @version      1
+            // @description  Take over the markets!
+            // @author       ItsThatOneJack
+            // @match        *://*.rugplay.com/*
+            // @icon         https://www.google.com/s2/favicons?sz=64&domain=rugplay.com
+            // @require      https://github.com/ItsThatOneJack-Dev/rugplaysdk/raw/refs/heads/main/RugplaySDK.user.js
+            // ==/UserScript==
+            ```
+          </Accordion>
+        </AccordionGroup>
+      </Accordion>
+      <Accordion title="Console">
+        There are two main options here, you can copy and paste the file, but I recommend you run the following script in devtools console, it simply pulls the file from GitHub and runs it.
+
+        ```javascript
+        fetch("https://raw.githubusercontent.com/ItsThatOneJack-Dev/rugplaysdk/refs/heads/main/RugplaySDK.user.js").then(r => r.text()).then(code => eval(code));
+        ```
+      </Accordion>
+    </AccordionGroup>
+  </Accordion>
+</AccordionGroup>

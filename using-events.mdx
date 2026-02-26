@@ -1,0 +1,56 @@
+---
+title: "Using Events"
+---
+
+<Info>
+  You will need to instruct the RugplaySDK to prepare a WebSocket connection for you in order to use events.
+
+  If you haven't already, add the following above any code that uses events:
+
+  ```javascript
+  await window.rugplaySDK.events.connect();
+  ```
+</Info>
+
+<AccordionGroup>
+  <Accordion title="Status Information">
+    There are various events fired when certain conditions change, see this example:
+
+    ```javascript
+    rugplaySDK.events.on("ready", () => console.log("WS ready"));
+    rugplaySDK.events.on("disconnect", () => console.log("WS dropped"));
+    rugplaySDK.events.on("retry", (delay) => console.log(`retrying in ${delay}ms`));
+    ```
+  </Accordion>
+  <Accordion title="Handling Errors">
+    To run code when an error occurs, you can use the `error` event, see this example:
+
+    ```javascript
+    rugplaySDK.events.on("error", (err) => console.error(err));
+    ```
+  </Accordion>
+  <Accordion title="Handling Sells">
+    To run code when a sell is announced, you can use the `sell` event, see this example:
+
+    ```javascript
+    rugplaySDK.events.on("sell", (trade) => console.log(`${trade.username} sold ${trade.amount} ${trade.coinSymbol}`));
+    ```
+  </Accordion>
+  <Accordion title="Handling Buys">
+    To run code when a sell is announced, you can use the `buy` event, see this example:
+
+    ```javascript
+    rugplaySDK.events.on("buy", (trade) => console.log(`${trade.username} bought ${trade.amount} ${trade.coinSymbol}`));
+    ```
+  </Accordion>
+</AccordionGroup>
+
+To unregister an event listener, assign the result of the `rugplaySDK.events.on` call to a variable, and call it, see this example:
+
+```javascript
+let readyListener = rugplaySDK.events.on("ready", () => console.log("WS ready"));
+
+readyListener();
+```
+
+If you want to receive an event only once, you can replace `.on` with `.once` , this behaves identically except for the fact that `.once` listeners automatically unregister themselves once they have triggered.

@@ -1,0 +1,88 @@
+---
+title: "Amounts"
+---
+
+<Info>
+  Many functions in RugplaySDK accept an `amount` argument. Rather than always requiring a raw number, RugplaySDK supports **sentinel values** and the **`percent() helper`** to make expressing common amounts more convenient and readable.
+</Info>
+
+## Sentinel Values
+
+Sentinel values are pre-defined constants that represent fixed percentages of a relevant balance. Depending on the function they are passed to, the percentage is applied against either your **cash balance** or your **held amount of a specific coin**.
+
+| Sentinel                       | Aliases       | Percentage |
+| ------------------------------ | ------------- | ---------- |
+| `window.rugplaySDK.MAX`        | `PERCENT_100` | 100%       |
+| `window.rugplaySDK.PERCENT_75` | —             | 75%        |
+| `window.rugplaySDK.HALF`       | `PERCENT_50`  | 50%        |
+| `window.rugplaySDK.PERCENT_25` | —             | 25%        |
+| `window.rugplaySDK.NONE`       | `PERCENT_0`   | 0%         |
+
+```javascript
+// Sell everything you hold of a coin
+await window.rugplaySDK.sellCoin("COIN_SYMBOL", window.rugplaySDK.MAX);
+
+// Send half your cash balance to a user
+await window.rugplaySDK.sendCash("USERNAME", window.rugplaySDK.HALF);
+
+// Buy a coin using 75% of your cash balance
+await window.rugplaySDK.buyCoin("COIN_SYMBOL", window.rugplaySDK.PERCENT_75);
+```
+
+<Warning>
+  Passing `window.rugplaySDK.NONE` or `0` as the amount to any function will return `true` immediately without making a request, as there is nothing to do.
+</Warning>
+
+## The `percent()` Helper
+
+For custom percentages not covered by the fixed sentinels, use the `percent()` helper:
+
+```javascript
+window.rugplaySDK.percent(value)
+```
+
+`value` must be a number between `0` and `100` inclusive. Passing a value outside this range will throw an error.
+
+```javascript
+// Buy a coin using 33% of your cash balance
+await window.rugplaySDK.buyCoin("COIN_SYMBOL", window.rugplaySDK.percent(33));
+
+// Sell 10% of your held amount of a coin
+await window.rugplaySDK.sellCoin("COIN_SYMBOL", window.rugplaySDK.percent(10));
+
+// Send 5% of your cash balance to a user
+await window.rugplaySDK.sendCash("USERNAME", window.rugplaySDK.percent(5));
+```
+
+<Info>
+  `percent()` returns a frozen object that the SDK recognises internally — it is not a raw number. You can store it in a variable and reuse it across multiple calls:
+
+  ```javascript
+  const tenth = window.rugplaySDK.percent(10);
+  
+  await window.rugplaySDK.buyCoin("COIN_A", tenth);
+  await window.rugplaySDK.buyCoin("COIN_B", tenth);
+  ```
+</Info>
+
+## Which Balance Does the Percentage Apply To?
+
+Whether a percentage is applied against your cash balance or your coin holdings depends on the function:
+
+| Function   | Percentage applies to    |
+| ---------- | ------------------------ |
+| `buyCoin`  | Cash balance             |
+| `sellCoin` | Held amount of that coin |
+| `sendCash` | Cash balance             |
+| `sendCoin` | Held amount of that coin |
+| `flipCoin` | Cash balance             |
+
+## Raw Numbers
+
+You can always pass a plain number instead of a sentinel or `percent()`. The value is used as-is with no percentage calculation:
+
+```javascript
+await window.rugplaySDK.buyCoin("COIN_SYMBOL", 500);
+await window.rugplaySDK.sellCoin("COIN_SYMBOL", 1000000);
+await window.rugplaySDK.sendCash("USERNAME", 250.50);
+```

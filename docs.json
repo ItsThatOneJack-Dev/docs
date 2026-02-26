@@ -8,18 +8,28 @@
   "navigation": {
     "tabs": [
       {
-        "tab": "Projects",
+        "tab": "Project Documentation",
         "products": [
           {
             "product": "RugplaySDK",
             "versions": [
               {
-                "version": "1",
+                "version": "Version 1",
                 "groups": [
                   {
-                    "group": "Documentation",
+                    "group": "Setup",
                     "pages": [
-                      "getting-started"
+                      "importing"
+                    ]
+                  },
+                  {
+                    "group": "Capabilities",
+                    "pages": [
+                      "getting-data",
+                      "using-events",
+                      "sending-data",
+                      "amounts",
+                      "objects"
                     ]
                   }
                 ]

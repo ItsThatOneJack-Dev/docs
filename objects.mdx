@@ -1,0 +1,126 @@
+---
+title: "Objects"
+---
+
+<Info>
+  RugplaySDK returns structured objects from many of its data-fetching functions. This page documents the properties available on each object type, as well as the shape of data returned by functions that don't return a named object type.
+</Info>
+
+## `User`
+
+Returned by `getUser()` and present as the `creator` property on `Coin` objects.
+
+| Property | Type | Description |
+|---|---|---|
+| `id` | `number` | The user's numeric Rugplay ID |
+| `displayName` | `string` | The user's display name |
+| `username` | `string` | The user's unique username (lowercase, no spaces) |
+| `email` | `string \| null` | The user's email address, only present for the current user |
+| `avatarUrl` | `string \| null` | Fully resolved URL to the user's avatar image |
+| `bio` | `string \| null` | The user's profile bio |
+| `nameColor` | `string \| null` | The user's active name colour or effect |
+| `balance` | `number` | The user's current cash balance |
+| `isAdmin` | `boolean` | Whether the user is a site administrator |
+| `prestigeLevel` | `number` | The user's prestige level |
+
+```javascript
+const user = await window.rugplaySDK.getUser("itoj");
+
+console.log(user.displayName);  // "ItsThatOneJack"
+console.log(user.balance);      // 371618.78
+console.log(user.avatarUrl);    // "https://rugplay.com/api/proxy/s3/avatars/..."
+```
+
+<Warning>
+  `balance` and other financial properties reflect the state at the time of the request and are not kept up to date automatically.
+</Warning>
+
+---
+
+## `Coin`
+
+Returned by `getCoin()`.
+
+| Property | Type | Description |
+|---|---|---|
+| `id` | `number` | The coin's numeric internal ID |
+| `name` | `string` | The coin's display name |
+| `symbol` | `string` | The coin's ticker symbol, e.g. `CATBOI` |
+| `iconUrl` | `string \| null` | Fully resolved URL to the coin's icon image |
+| `currentPrice` | `number` | The coin's current price in cash |
+| `marketCap` | `number` | The coin's current market capitalisation |
+| `volume24h` | `number` | Trading volume over the last 24 hours |
+| `change24h` | `number` | Percentage price change over the last 24 hours |
+| `circulatingSupply` | `number` | The number of coins currently in circulation |
+| `isListed` | `boolean` | Whether the coin is publicly listed |
+| `createdAt` | `Date \| null` | When the coin was created |
+| `creator` | `User \| null` | A full `User` object for the coin's creator |
+
+```javascript
+const coin = await window.rugplaySDK.getCoin("CATBOI");
+
+console.log(coin.name);                 // "catboi"
+console.log(coin.currentPrice);         // 78.75
+console.log(coin.creator.username);     // "maze"
+console.log(coin.iconUrl);              // "https://rugplay.com/api/proxy/s3/coins/catboi.jpg"
+```
+
+<Info>
+  `getCoin()` internally calls `getUser()` for the coin's creator, meaning it makes two network requests. Keep this in mind if you are fetching many coins in quick succession.
+</Info>
+
+---
+
+## Holdings Data
+
+`getHoldings()` does not return `Coin` objects — doing so would require one network request per held coin, which would be slow and bandwidth-heavy. Instead it returns a plain dictionary keyed by coin symbol, where each value is a holdings entry:
+
+| Property | Type | Description |
+|---|---|---|
+| `symbol` | `string` | The coin's ticker symbol |
+| `iconUrl` | `string \| null` | Fully resolved URL to the coin's icon |
+| `quantity` | `number` | How many of this coin you hold |
+| `currentPrice` | `number` | The coin's current price in cash |
+| `value` | `number` | Total cash value of your holding |
+| `change24h` | `number` | Percentage price change over the last 24 hours |
+| `avgPurchasePrice` | `number` | Your average purchase price per coin |
+| `percentageChange` | `number` | Percentage change relative to your average purchase price |
+| `costBasis` | `number` | Total cash spent acquiring this holding |
+
+```javascript
+const holdings = await window.rugplaySDK.getHoldings();
+
+console.log(holdings["COMMON"].quantity);      // 680
+console.log(holdings["COMMON"].value);         // 16.63
+console.log(holdings["COMMON"].currentPrice);  // 0.02445199
+```
+
+### Converting Holdings to `Coin` Objects
+
+If you need full `Coin` objects for your holdings, you can map over the holdings dictionary and call `getCoin()` for each entry. Since this fires one request per coin, it is best to do this only when you genuinely need the extra data:
+
+```javascript
+const holdings = await window.rugplaySDK.getHoldings();
+
+const coins = await Promise.all(
+    Object.keys(holdings).map(symbol => window.rugplaySDK.getCoin(symbol))
+);
+```
+
+This gives you an array of `Coin` objects for every coin you hold. If you want to preserve the symbol-keyed dictionary shape:
+
+```javascript
+const holdings = await window.rugplaySDK.getHoldings();
+
+const coinEntries = await Promise.all(
+    Object.keys(holdings).map(async symbol => [symbol, await window.rugplaySDK.getCoin(symbol)])
+);
+
+const coinDict = Object.fromEntries(coinEntries);
+
+console.log(coinDict["COMMON"].creator.username);
+```
+
+<Warning>
+  Both approaches above fire one network request per held coin simultaneously. If you hold many coins this can result in a large number of requests at once. Consider whether you truly need full `Coin` objects, or whether the data from `getHoldings()` is sufficient for your use case.
+</Warning>
