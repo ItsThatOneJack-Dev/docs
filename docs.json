@@ -33,6 +33,28 @@
                     ]
                   }
                 ]
+              },
+              {
+                "version": "Version 1.2",
+                "default": true,
+                "groups": [
+                  {
+                    "group": "Setup",
+                    "pages": [
+                      "importing-copied-1"
+                    ]
+                  },
+                  {
+                    "group": "Capabilities",
+                    "pages": [
+                      "getting-data-copied-1",
+                      "using-events-copied-1",
+                      "sending-data-copied-1",
+                      "amounts-copied-1",
+                      "objects-copied-1"
+                    ]
+                  }
+                ]
               }
             ]
           }

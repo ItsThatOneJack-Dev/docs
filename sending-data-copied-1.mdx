@@ -1,0 +1,124 @@
+---
+title: "Sending Data"
+---
+
+<Info>
+  Sending data covers all actions that modify state, such as trading coins, transferring funds, and placing bets. All functions on this page return `true` or `false` to indicate success.
+</Info>
+
+<AccordionGroup>
+  <Accordion title="Buying a Coin">
+    To buy a coin, use the following:
+
+    ```javascript
+    await window.rugplaySDK.buyCoin("COIN_SYMBOL", amount);
+    ```
+
+    The `amount` here is the amount of **cash** you want to spend, not the number of coins to receive.
+
+    <Info>
+      `buyCoin` supports sentinel values and `percent()` for the `amount` argument, which are calculated against your current cash balance:
+
+      ```javascript
+      await window.rugplaySDK.buyCoin("COIN_SYMBOL", window.rugplaySDK.HALF);
+      await window.rugplaySDK.buyCoin("COIN_SYMBOL", window.rugplaySDK.percent(33));
+      ```
+    </Info>
+    <Warning>
+      Passing `window.rugplaySDK.NONE` or `0` as the amount will return `true` immediately without making a request, as there is nothing to do.
+    </Warning>
+  </Accordion>
+  <Accordion title="Selling a Coin">
+    To sell a coin, use the following:
+
+    ```javascript
+    await window.rugplaySDK.sellCoin("COIN_SYMBOL", amount);
+    ```
+
+    The `amount` here is the number of **coins** you want to sell, not the cash value to receive.
+
+    <Info>
+      `sellCoin` supports sentinel values and `percent()` for the `amount` argument, which are calculated against how much of that coin you currently hold:
+
+      ```javascript
+      await window.rugplaySDK.sellCoin("COIN_SYMBOL", window.rugplaySDK.MAX);
+      await window.rugplaySDK.sellCoin("COIN_SYMBOL", window.rugplaySDK.percent(50));
+      ```
+    </Info>
+    <Warning>
+      Passing `window.rugplaySDK.NONE` or `0` as the amount will return `true` immediately without making a request, as there is nothing to do.
+    </Warning>
+  </Accordion>
+  <Accordion title="Transferring Cash to a User">
+    To send cash to another user, use the following:
+
+    ```javascript
+    await window.rugplaySDK.sendCash("USERNAME", amount);
+    ```
+
+    <Info>
+      `sendCash` supports sentinel values and `percent()` for the `amount` argument, which are calculated against your current cash balance:
+
+      ```javascript
+      await window.rugplaySDK.sendCash("USERNAME", window.rugplaySDK.HALF);
+      await window.rugplaySDK.sendCash("USERNAME", window.rugplaySDK.percent(10));
+      ```
+    </Info>
+    <Warning>
+      Pass the recipient's username, not their display name or numeric ID.
+    </Warning>
+    <Warning>
+      Passing `window.rugplaySDK.NONE` or `0` as the amount will return `true` immediately without making a request, as there is nothing to do.
+    </Warning>
+  </Accordion>
+  <Accordion title="Transferring a Coin to a User">
+    To send coins to another user, use the following:
+
+    ```javascript
+    await window.rugplaySDK.sendCoin("USERNAME", amount, "COIN_SYMBOL");
+    ```
+
+    The `amount` here is the number of **coins** to send.
+
+    <Info>
+      `sendCoin` supports sentinel values and `percent()` for the `amount` argument, which are calculated against how much of that coin you currently hold:
+
+      ```javascript
+      await window.rugplaySDK.sendCoin("USERNAME", window.rugplaySDK.PERCENT_75, "COIN_SYMBOL");
+      await window.rugplaySDK.sendCoin("USERNAME", window.rugplaySDK.percent(20), "COIN_SYMBOL");
+      ```
+    </Info>
+    <Warning>
+      Pass the recipient's username, not their display name or numeric ID.
+    </Warning>
+    <Warning>
+      Passing `window.rugplaySDK.NONE` or `0` as the amount will return `true` immediately without making a request, as there is nothing to do.
+    </Warning>
+  </Accordion>
+  <Accordion title="Flipping a Coin">
+    To place a coinflip bet, use the following:
+
+    ```javascript
+    await window.rugplaySDK.flipCoin(amount);
+    ```
+
+    The `amount` here is the amount of **cash** to wager.
+
+    <Info>
+      `flipCoin` supports sentinel values and `percent()` for the `amount` argument, which are calculated against your current cash balance:
+
+      ```javascript
+      await window.rugplaySDK.flipCoin(window.rugplaySDK.percent(5));
+      await window.rugplaySDK.flipCoin(window.rugplaySDK.PERCENT_25);
+      ```
+    </Info>
+    <Info>
+      The side is always set to `heads` internally. Since the probability is identical either way, this has no effect on your odds.
+    </Info>
+    <Warning>
+      Passing `window.rugplaySDK.NONE` or `0` as the amount will return `true` immediately without making a request, as there is nothing to do.
+    </Warning>
+  </Accordion>
+</AccordionGroup>
+
+To learn about sentinel values and `percent()`, see the `Amounts` page.
