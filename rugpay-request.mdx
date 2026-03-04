@@ -1,0 +1,71 @@
+---
+title: RugpayRequest
+description: In-app payment requests via Chat
+---
+
+Rugpay requests are payment requests sent through Chat channels. You can send them via a channel and receive them via the `rugpayRequest` Chat event.
+
+---
+
+## Sending a Request
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const user    = await rugplaySDK.User("itoj");
+    const channel = await rugplaySDK.Channel.dm(user);
+
+    await channel.sendRugpay(100, "you owe me");
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const channel = await rugplaySDK.Channel.dm(user);
+    await channel.sendRugpay(100, "you owe me");
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Receiving and Responding to Requests
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    rugplaySDK.Chat.on("rugpayRequest", async (req) => {
+        console.log(`${req.payerUsername} is requesting $${req.amount}`);
+        console.log(`Note: ${req.note}`);
+
+        // Accept
+        const result = await req.accept();
+
+        // Or decline
+        const result = await req.decline();
+    });
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    rugplaySDK.Chat.on("rugpayRequest", async (req) => {
+        await req.accept();
+    });
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | `number` | Request ID |
+| `amount` | `number` | Amount requested |
+| `note` | `string \| null` | Optional note |
+| `status` | `string` | Current status |
+| `createdAt` | `Date` | When the request was created |
+| `payerUsername` | `string` | Username of the person paying |
+| `creatorUsername` | `string` | Username of the person requesting |
+| `creator` | `User \| null` | Requester (lazily resolved) |
+| `recipient` | `User \| null` | Payer (lazily resolved) |

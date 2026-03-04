@@ -1,71 +1,56 @@
 ---
-title: Introduction
-description: 'Welcome to the home of your new documentation'
+title: "Introduction"
+description: "The all-in-one SDK for Rugplay automation"
 ---
 
-<img
-  className="block dark:hidden"
-  src="/images/hero-light.svg"
-  alt="Hero Light"
-/>
-<img
-  className="hidden dark:block"
-  src="/images/hero-dark.svg"
-  alt="Hero Dark"
-/>
+# RugplaySDK
 
-## Setting up
+RugplaySDK is a fully-featured TypeScript SDK for interacting with [Rugplay](https://rugplay.com) — a browser-based crypto trading simulator. It provides a clean, typed API for trading, chatting, gambling, managing your profile, and more.
 
-The first step to world-class documentation is setting up your editing environments.
+## Two Distributions
+
+RugplaySDK ships in two forms depending on how you want to use it.
 
 <CardGroup cols={2}>
-  <Card
-    title="Edit Your Docs"
-    icon="pen-to-square"
-    href="https://mintlify.com/docs/quickstart"
-  >
-    Get your docs set up locally for easy development
+  <Card icon="browser" title="Userscript">
+    **`rugplaySDK.user.js`** — install via Tampermonkey or Greasemonkey. Runs in the browser on rugplay.com, auto-connects to Chat and Events on page load.
   </Card>
-  <Card
-    title="Preview Changes"
-    icon="image"
-    href="https://mintlify.com/docs/development"
-  >
-    Preview your changes before you push to make sure they're perfect
+  <Card icon="server" title="Server">
+    **`rugplaySDK.server.js`** — a Node/Bun/Deno-compatible ESM module for running bots and automation scripts outside the browser.
   </Card>
 </CardGroup>
 
-## Make it yours
+## Features
 
-Update your docs to your brand and add valuable content for the best user conversion.
+<AccordionGroup>
+  <Accordion title="Trading">
+    Buy and sell coins, track your portfolio, get transaction history, and monitor live trades via the Events WebSocket.
+  </Accordion>
+  <Accordion title="Chat & Messaging">
+    Send messages, create group channels, send Rugpay requests, and listen to incoming messages in real time via the Chat WebSocket.
+  </Accordion>
+  <Accordion title="Arcade">
+    Play Coinflip, Dice, Slots, Mines, and Tower with full async game state management, auto-cashout timers, and percent-based betting.
+  </Accordion>
+  <Accordion title="Shop & Inventory">
+    Open crates, equip name styles, check gem balances, and manage your inventory.
+  </Accordion>
+  <Accordion title="Hopium">
+    Browse, create, and bet on Hopium prediction questions.
+  </Accordion>
+  <Accordion title="Leaderboards & Achievements">
+    Fetch live leaderboard data, track achievement progress, and claim rewards.
+  </Accordion>
+  <Accordion title="Backoff & Utilities">
+    Built-in exponential, linear, logarithmic, stepped, and custom backoff helpers. HTML sanitisation, Levenshtein distance, and more.
+  </Accordion>
+</AccordionGroup>
 
-<CardGroup cols={2}>
-  <Card
-    title="Customize Style"
-    icon="palette"
-    href="https://mintlify.com/docs/settings/global"
-  >
-    Customize your docs to your company's colors and brands
-  </Card>
-  <Card
-    title="Reference APIs"
-    icon="code"
-    href="https://mintlify.com/docs/api-playground/openapi"
-  >
-    Automatically generate endpoints from an OpenAPI spec
-  </Card>
-  <Card
-    title="Add Components"
-    icon="screwdriver-wrench"
-    href="https://mintlify.com/docs/components/accordion"
-  >
-    Build interactive features and designs to guide your users
-  </Card>
-  <Card
-    title="Get Inspiration"
-    icon="stars"
-    href="https://mintlify.com/customers"
-  >
-    Check out our showcase of our favorite documentation
-  </Card>
-</CardGroup>
+## Global Aliases
+
+When used as a userscript, the SDK is available on `window` under two aliases:
+
+```js
+window.rugplaySDK  // full name
+window.RPSDK$      // short alias
+```

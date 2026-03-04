@@ -1,86 +1,166 @@
 ---
-title: 'Quickstart'
-description: 'Start building awesome documentation in under 5 minutes'
+title: "Quickstart"
+description: "Get up and running in minutes"
 ---
 
-## Setup your development
+## Userscript (Browser)
 
-Learn how to update your docs locally and deploy them to the public.
+The easiest way to use RugplaySDK is as a Tampermonkey userscript on rugplay.com.
 
-### Edit and preview
+[**1. Install Tampermonkey for your browser.**](https://www.tampermonkey.net/)
 
-<AccordionGroup>
-  <Accordion icon="github" title="Clone your docs locally">
-    During the onboarding process, we created a repository on your Github with
-    your docs content. You can find this repository on our
-    [dashboard](https://dashboard.mintlify.com). To clone the repository
-    locally, follow these
-    [instructions](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository)
-    in your terminal.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Preview changes">
-    Previewing helps you make sure your changes look as intended. We built a
-    command line interface to render these changes locally. 1. Install the
-    [Mintlify CLI](https://www.npmjs.com/package/mintlify) to preview the
-    documentation changes locally with this command: ``` npm i -g mintlify ```
-    2. Run the following command at the root of your documentation (where
-    `mint.json` is): ``` mintlify dev ```
-  </Accordion>
-</AccordionGroup>
+[**2. Directly install RugplaySDK**](https://raw.githubusercontent.com/ItsThatOneJack-Dev/rugplaysdk/refs/heads/main/RugplaySDK.user.js), or import it via `@require`:
 
-### Deploy your changes
+```js
+// ==UserScript==
+// @name         My Rugplay Bot
+// @match        *://*.rugplay.com/*
+// @require      https://raw.githubusercontent.com/ItsThatOneJack-Dev/rugplaysdk/refs/heads/main/RugplaySDK.user.js
+// @grant        none
+// ==/UserScript==
 
-<AccordionGroup>
+// rugplaySDK and RPSDK$ are now available globally
+```
 
-<Accordion icon="message-bot" title="Install our Github app">
-  Our Github app automatically deploys your changes to your docs site, so you
-  don't need to manage deployments yourself. You can find the link to install on
-  your [dashboard](https://dashboard.mintlify.com). Once the bot has been
-  successfully installed, there should be a check mark next to the commit hash
-  of the repo.
-</Accordion>
-<Accordion icon="rocket" title="Push your changes">
-  [Commit and push your changes to
-  Git](https://docs.github.com/en/get-started/using-git/pushing-commits-to-a-remote-repository#about-git-push)
-  for your changes to update in your docs site. If you push and don't see that
-  the Github app successfully deployed your changes, you can also manually
-  update your docs through our [dashboard](https://dashboard.mintlify.com).
-</Accordion>
+**3. The SDK auto-connects** to Chat and Events when you load rugplay.com while logged in. No setup needed.
 
-</AccordionGroup>
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const me = await rugplaySDK.User.me();
+    console.log(`Logged in as ${me.displayName}`);
+    
+    const coin = await rugplaySDK.Coin("CATBOI");
+    await coin.buy(100);
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const me = await rugplaySDK.User.me();
+    console.log(`Logged in as ${me.displayName}`);
+    
+    const coin = await rugplaySDK.Coin("CATBOI");
+    await coin.buy(100);
+    ```
+  </Tab>
+</Tabs>
 
-## Update your docs
+---
 
-Add content directly in your files with MDX syntax and React components. You can use any of our components, or even build your own.
+## Server Script (Node / Bun / Deno)
 
-<CardGroup>
+For running bots outside the browser you need a session cookie from rugplay.com.
 
-<Card title="Style Your Docs" icon="paintbrush" href="/settings/global">
-  Add flair to your docs with personalized branding.
-</Card>
+**1. Grab your session cookies** from rugplay.com using your browser's DevTools (Application → Cookies):
 
-<Card
-  title="Add API Endpoints"
-  icon="square-code"
-  href="/api-playground/configuration"
->
-  Implement your OpenAPI spec and enable API user interaction.
-</Card>
+- `session_data`
+- `session_token`
+- `cf_clearance`
 
-<Card
-  title="Integrate Analytics"
-  icon="chart-mixed"
-  href="/analytics/supported-integrations"
->
-  Draw insights from user interactions with your documentation.
-</Card>
+**2. Install the package:**
 
-<Card
-  title="Host on a Custom Domain"
-  icon="browser"
-  href="/settings/custom-domain/subdomain"
->
-  Keep your docs on your own website's subdomain.
-</Card>
+```bash
+# Bun
+bun add rugplaysdk
 
-</CardGroup>
+# npm
+npm install rugplaysdk
+```
+
+**3. Write your script:**
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    import { rugplaySDK, ServerAuth, shutdown } from "rugplaysdk";
+    
+    ServerAuth.init({
+        sessionData:  "eyJ...",
+        sessionToken: decodeURIComponent("s%3A..."),
+        cfClearance:  "abc123...",
+    });
+    
+    if (!await ServerAuth.validate()) {
+        console.error("Invalid or expired session.");
+        process.exit(1);
+    }
+    
+    await rugplaySDK.Chat.connect();
+    
+    const me = await rugplaySDK.User.me();
+    console.log(`Running as ${me.displayName}`);
+    
+    const coin = await rugplaySDK.Coin("CATBOI");
+    await coin.buy(100);
+    
+    shutdown();
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    import { rugplaySDK, ServerAuth, shutdown } from "rugplaysdk";
+    
+    ServerAuth.init({
+        sessionData:  "eyJ...",
+        sessionToken: decodeURIComponent("s%3A..."),
+        cfClearance:  "abc123...",
+    });
+    
+    if (!await ServerAuth.validate()) {
+        console.error("Invalid or expired session.");
+        process.exit(1);
+    }
+    
+    await rugplaySDK.Chat.connect();
+    
+    const me = await rugplaySDK.User.me();
+    console.log(`Running as ${me.displayName}`);
+    
+    const coin = await rugplaySDK.Coin("CATBOI");
+    await coin.buy(100);
+    
+    shutdown();
+    ```
+  </Tab>
+</Tabs>
+
+<Warning>
+  Never commit your session cookies to source control. Use environment variables instead:
+
+  ```ts
+  ServerAuth.init({
+      sessionData:  process.env.SESSION_DATA!,
+      sessionToken: process.env.SESSION_TOKEN!,
+      cfClearance:  process.env.CF_CLEARANCE!,
+  });
+  ```
+</Warning>
+
+---
+
+## Checking Login State
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const loggedIn = await rugplaySDK.isLoggedIn();
+    if (!loggedIn) {
+        console.log("Not logged in.");
+    }
+    
+    // Or get the full user object:
+    const me = await rugplaySDK.User.me(); // null if not logged in
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const loggedIn = await rugplaySDK.isLoggedIn();
+    if (!loggedIn) {
+        console.log("Not logged in.");
+    }
+    
+    // Or get the full user object:
+    const me = await rugplaySDK.User.me(); // null if not logged in
+    ```
+  </Tab>
+</Tabs>

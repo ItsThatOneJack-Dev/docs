@@ -1,0 +1,128 @@
+---
+title: Leaderboard
+description: Live leaderboard data across four categories
+---
+
+The leaderboard exposes the top players across four categories. All entries lazily resolve their `user` property in the background.
+
+---
+
+## Fetching All Categories
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const boards = await rugplaySDK.leaderboard.fetch();
+
+    console.log(boards.rugpullers[0].username);
+    console.log(boards.cashKings[0].totalPortfolio);
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const boards = await rugplaySDK.leaderboard.fetch();
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Fetching Individual Categories
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const rugpullers        = await rugplaySDK.leaderboard.rugpullers();
+    const biggestLosers     = await rugplaySDK.leaderboard.biggestLosers();
+    const cashKings         = await rugplaySDK.leaderboard.cashKings();
+    const paperMillionaires = await rugplaySDK.leaderboard.paperMillionaires();
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const cashKings = await rugplaySDK.leaderboard.cashKings();
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Entry Shapes
+
+<AccordionGroup>
+  <Accordion title="Rugpullers">
+    ```ts
+    interface RugpullerEntry {
+        username:       string;
+        name:           string;
+        avatarUrl:      string | null;
+        totalSold:      number;
+        totalBought:    number;
+        totalExtracted: number;
+        user:           User | null;
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Biggest Losers">
+    ```ts
+    interface BiggestLoserEntry {
+        username:      string;
+        name:          string;
+        avatarUrl:     string | null;
+        moneySpent:    number;
+        moneyReceived: number;
+        currentValue:  number;
+        totalLoss:     number;
+        user:          User | null;
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Cash Kings">
+    ```ts
+    interface CashKingEntry {
+        username:       string;
+        name:           string;
+        avatarUrl:      string | null;
+        balance:        number;
+        coinValue:      number;
+        totalPortfolio: number;
+        liquidityRatio: number;
+        user:           User | null;
+    }
+    ```
+  </Accordion>
+
+  <Accordion title="Paper Millionaires">
+    Same shape as Cash Kings — high portfolio value but mostly illiquid holdings.
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Lazy User Resolution
+
+Each entry starts with `user: null`. The `User` object is resolved in the background automatically — by the time you access `user` a few milliseconds after fetching, it will likely already be populated.
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const kings = await rugplaySDK.leaderboard.cashKings();
+
+    // user may still be null immediately after fetch
+    console.log(kings[0].user); // null or User
+
+    // Wait a moment then access
+    setTimeout(() => {
+        console.log(kings[0].user?.displayName); // likely resolved by now
+    }, 500);
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const kings = await rugplaySDK.leaderboard.cashKings();
+    setTimeout(() => console.log(kings[0].user?.displayName), 500);
+    ```
+  </Tab>
+</Tabs>

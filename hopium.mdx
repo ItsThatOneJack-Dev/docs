@@ -1,0 +1,164 @@
+---
+title: Hopium
+description: Browse, create, and bet on prediction questions
+---
+
+Hopium is Rugplay's prediction market. Users create yes/no questions with a resolution date, and others bet cash on the outcome. Questions are resolved by an AI after the resolution date.
+
+---
+
+## Browsing Questions
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    // Active questions, first page
+    const questions = await rugplaySDK.hopium.getQuestions();
+
+    // All active questions across all pages
+    const all = await rugplaySDK.hopium.getQuestions("ACTIVE", 50, true);
+
+    // Resolved questions
+    const resolved = await rugplaySDK.hopium.getQuestions("RESOLVED");
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const questions = await rugplaySDK.hopium.getQuestions();
+    const all       = await rugplaySDK.hopium.getQuestions("ACTIVE", 50, true);
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Getting a Specific Question
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const question = await rugplaySDK.hopium.getQuestion(965);
+
+    console.log(question.question);       // "will the petronas towers fall over..."
+    console.log(question.yesPercentage);  // 100
+    console.log(question.totalAmount);    // total cash wagered
+    console.log(question.resolutionDate); // Date object
+    console.log(question.requiresWebSearch); // whether AI uses web search to resolve
+
+    // Recent bets — only populated when fetched via getQuestion(), not from the list
+    for (const bet of question.recentBets ?? []) {
+        console.log(`${bet.username} bet ${bet.side ? "YES" : "NO"} — $${bet.amount}`);
+    }
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const question = await rugplaySDK.hopium.getQuestion(965);
+    console.log(question.yesPercentage);
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Placing a Bet
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const question = await rugplaySDK.hopium.getQuestion(965);
+
+    // Bet $100 on YES
+    const result = await question.bet(true, 100);
+
+    // Bet 10% of balance on NO
+    const result = await question.bet(false, rugplaySDK.percent(10));
+
+    if (result !== rugplaySDK.results.FAILURE) {
+        console.log(`Potential winnings: $${result.potentialWinnings}`);
+        console.log(`New balance: $${result.newBalance}`);
+    }
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const result = await question.bet(true, 100);
+    if (result !== rugplaySDK.results.FAILURE) {
+        console.log(`Potential winnings: $${result.potentialWinnings}`);
+    }
+    ```
+  </Tab>
+</Tabs>
+
+`bet()` returns a `BetResult` on success or `results.FAILURE`:
+
+```ts
+interface BetResult {
+    betId:             number;
+    side:              boolean;
+    amount:            number;
+    potentialWinnings: number;
+    newBalance:        number;
+}
+```
+
+---
+
+## Creating a Question
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const result = await rugplaySDK.hopium.create(
+        "Will *CATBOI reach $1 by end of March?"
+    );
+
+    if (result.success) {
+        console.log(`Created question #${result.id}`);
+        console.log(`Resolves: ${result.resolutionDate}`);
+        console.log(`Requires web search: ${result.requiresWebSearch}`);
+    } else {
+        // The AI rejected the question — error message is AI-generated
+        console.log(`Rejected: ${result.error}`);
+    }
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const result = await rugplaySDK.hopium.create("Will *CATBOI reach $1?");
+    if (result.success) {
+        console.log(`Created #${result.id}`);
+    } else {
+        console.log(`Rejected: ${result.error}`);
+    }
+    ```
+  </Tab>
+</Tabs>
+
+<Note>
+  Questions are validated by an AI before being accepted. Self-referential questions, paradoxes, and questions that cannot be objectively resolved will be rejected with an AI-generated error message.
+</Note>
+
+---
+
+## HopiumQuestion Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | `number` | Question ID |
+| `question` | `string` | Question text |
+| `status` | `"ACTIVE" \| "RESOLVED" \| "CANCELLED"` | Current status |
+| `resolutionDate` | `Date` | When the question resolves |
+| `totalAmount` | `number` | Total cash wagered |
+| `yesAmount` | `number` | Cash bet on YES |
+| `noAmount` | `number` | Cash bet on NO |
+| `yesPercentage` | `number` | % of pool on YES |
+| `noPercentage` | `number` | % of pool on NO |
+| `createdAt` | `Date` | Creation date |
+| `resolvedAt` | `Date \| null` | Resolution date (if resolved) |
+| `requiresWebSearch` | `boolean` | Whether AI uses web search |
+| `aiResolution` | `boolean \| null` | AI resolution result |
+| `creatorUsername` | `string` | Creator's username |
+| `creator` | `User \| null` | Creator (lazily resolved) |
+| `userBets` | `UserBets \| null` | Your bets on this question |
+| `recentBets` | `RecentBet[] \| null` | Recent bets (getQuestion only) |

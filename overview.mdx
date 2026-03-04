@@ -1,0 +1,81 @@
+---
+title: Arcade Overview
+description: Coinflip, Dice, Slots, Mines, and Tower
+---
+
+The Arcade offers five games. All games support percent-based betting via `rugplaySDK.percent()`.
+
+<CardGroup cols={2}>
+  <Card title="Coinflip" icon="coin" href="/arcade/coinflip-dice-slots">
+    50/50 heads or tails. Instant result.
+  </Card>
+  <Card title="Dice" icon="dice" href="/arcade/coinflip-dice-slots">
+    Roll a number. Instant result.
+  </Card>
+  <Card title="Slots" icon="slot-machine" href="/arcade/coinflip-dice-slots">
+    Three reels. Win on matching symbols.
+  </Card>
+  <Card title="Mines" icon="bomb" href="/arcade/mines">
+    Reveal safe tiles on a 5×5 grid. Cash out before hitting a mine.
+  </Card>
+  <Card title="Tower" icon="building" href="/arcade/tower">
+    Climb 10 floors by picking a safe tile on each. Cash out at any point.
+  </Card>
+</CardGroup>
+
+---
+
+## Percent-Based Betting
+
+All arcade games accept either a flat dollar amount or a percent of your balance:
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    // Flat amount
+    await rugplaySDK.arcade.coinflip(100);
+
+    // 10% of balance
+    await rugplaySDK.arcade.coinflip(rugplaySDK.percent(10));
+
+    // Entire balance
+    await rugplaySDK.arcade.coinflip(rugplaySDK.percent(100));
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    await rugplaySDK.arcade.coinflip(100);
+    await rugplaySDK.arcade.coinflip(rugplaySDK.percent(10));
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Result Sentinels
+
+All arcade methods return result sentinels from `rugplaySDK.results`. You compare them with `===`:
+
+```ts
+const r = await rugplaySDK.arcade.coinflip(100);
+
+if (r === rugplaySDK.results.COINFLIP_WIN)  console.log("Won!");
+if (r === rugplaySDK.results.COINFLIP_LOSS) console.log("Lost.");
+if (r === rugplaySDK.results.FAILURE)       console.log("Request failed.");
+```
+
+| Sentinel | Game | Meaning |
+|----------|------|---------|
+| `COINFLIP_WIN` | Coinflip | Won |
+| `COINFLIP_LOSS` | Coinflip | Lost |
+| `DICE_WIN` | Dice | Won |
+| `DICE_LOSS` | Dice | Lost |
+| `SLOTS_LOSS` | Slots | No match |
+| `SLOTS_2_OF_A_KIND` | Slots | Two matching symbols |
+| `SLOTS_3_OF_A_KIND` | Slots | Three matching symbols |
+| `MINES_SAFE` | Mines | Tile was safe |
+| `MINES_HIT` | Mines | Hit a mine — game over |
+| `MINES_COMPLETE` | Mines | All safe tiles revealed |
+| `TOWER_SAFE` | Tower | Tile was safe |
+| `TOWER_HIT` | Tower | Hit a bomb — game over |
+| `TOWER_COMPLETE` | Tower | All 10 floors cleared |

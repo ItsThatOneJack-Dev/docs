@@ -1,0 +1,187 @@
+---
+title: Mines
+description: Reveal tiles on a 5×5 grid and cash out before hitting a mine
+---
+
+Mines is a multi-step game. You start a session, reveal tiles one at a time, and cash out whenever you want. Hit a mine and you lose everything.
+
+---
+
+## Starting a Game
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    // $100 bet, 10s auto-cashout, 3 mines (defaults)
+    const game = await rugplaySDK.arcade.mines(100);
+
+    // Custom mine count (3–24)
+    const game = await rugplaySDK.arcade.mines(100, 10000, 5);
+
+    // Disable auto-cashout
+    const game = await rugplaySDK.arcade.mines(100, null, 3);
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const game = await rugplaySDK.arcade.mines(100);
+    const game = await rugplaySDK.arcade.mines(100, 10000, 5);
+    const game = await rugplaySDK.arcade.mines(100, null, 3);
+    ```
+  </Tab>
+</Tabs>
+
+`mines(amount, autoTimeoutMs, mineCount)`:
+
+| Parameter | Default | Description |
+|-----------|---------|-------------|
+| `amount` | required | Bet amount (flat or percent) |
+| `autoTimeoutMs` | `10000` | Auto-cashout after inactivity (ms). `null` to disable. |
+| `mineCount` | `3` | Number of mines (3–24) |
+
+---
+
+## Revealing Tiles
+
+Tiles can be addressed by flat index (0–24) or by X/Y coordinates (0–4 each).
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    // By flat index (0 = top-left, 24 = bottom-right)
+    const result = await game.reveal(0);
+
+    // By X/Y coordinates
+    const result = await game.reveal(2, 2); // centre tile
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const result = await game.reveal(0);
+    const result = await game.reveal(2, 2);
+    ```
+  </Tab>
+</Tabs>
+
+```
+ 0  1  2  3  4
+ 5  6  7  8  9
+10 11 12 13 14
+15 16 17 18 19
+20 21 22 23 24
+```
+
+---
+
+## Handling Results
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const result = await game.reveal(0);
+
+    if (result === rugplaySDK.results.MINES_HIT) {
+        console.log("Hit a mine! Game over.");
+    } else if (result === rugplaySDK.results.MINES_SAFE) {
+        console.log(`Safe! Multiplier: ${game.lastMultiplier}x`);
+    } else if (result === rugplaySDK.results.MINES_COMPLETE) {
+        console.log("All safe tiles revealed!");
+    }
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const result = await game.reveal(0);
+
+    if (result === rugplaySDK.results.MINES_HIT) {
+        console.log("Hit a mine!");
+    } else if (result === rugplaySDK.results.MINES_SAFE) {
+        console.log(`Multiplier: ${game.lastMultiplier}x`);
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Cashing Out
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const cashout = await game.cashout();
+
+    console.log(`Payout: $${cashout.payout}`);
+    console.log(`Wagered: $${cashout.amountWagered}`);
+    console.log(`New balance: $${cashout.newBalance}`);
+    console.log(`Mines were at: ${cashout.minePositions}`);
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const cashout = await game.cashout();
+    console.log(`Won $${cashout.payout}`);
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Game State Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `active` | `boolean` | Whether the game is still in progress |
+| `sessionToken` | `string` | Session token for this game |
+| `mineCount` | `number` | Number of mines |
+| `bet` | `number` | Amount wagered |
+| `lastMultiplier` | `number \| null` | Current multiplier after last reveal |
+
+---
+
+## Full Example
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const game = await rugplaySDK.arcade.mines(
+        rugplaySDK.percent(5), // 5% of balance
+        15000,                 // 15s auto-cashout
+        5,                     // 5 mines
+    );
+
+    // Reveal tiles until we hit or reach a good multiplier
+    for (let i = 0; i < 5 && game.active; i++) {
+        const result = await game.reveal(i);
+
+        if (result === rugplaySDK.results.MINES_HIT) {
+            console.log("Hit a mine!");
+            break;
+        }
+
+        console.log(`Tile ${i} safe. Multiplier: ${game.lastMultiplier}x`);
+
+        if ((game.lastMultiplier ?? 1) >= 3) {
+            const cashout = await game.cashout();
+            console.log(`Cashed out $${cashout.payout}`);
+            break;
+        }
+    }
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const game = await rugplaySDK.arcade.mines(rugplaySDK.percent(5), 15000, 5);
+
+    for (let i = 0; i < 5 && game.active; i++) {
+        const result = await game.reveal(i);
+        if (result === rugplaySDK.results.MINES_HIT) break;
+        if ((game.lastMultiplier ?? 1) >= 3) {
+            const cashout = await game.cashout();
+            console.log(`Cashed out $${cashout.payout}`);
+            break;
+        }
+    }
+    ```
+  </Tab>
+</Tabs>

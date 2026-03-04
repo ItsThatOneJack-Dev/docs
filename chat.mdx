@@ -1,0 +1,225 @@
+---
+title: Chat
+description: Real-time messaging, channels, and Rugpay
+---
+
+The Chat WebSocket handles all real-time messaging on Rugplay — direct messages, group channels, and Rugpay payment requests.
+
+---
+
+## Connecting
+
+In the userscript, Chat connects automatically on page load. In the server distribution:
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    await rugplaySDK.Chat.connect();
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    await rugplaySDK.Chat.connect();
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Listening for Messages
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    rugplaySDK.Chat.on("message", (msg) => {
+        console.log(`${msg.senderUsername} in ${msg.channelId}: ${msg.content}`);
+
+        // Reply
+        await msg.reply("thanks!");
+    });
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    rugplaySDK.Chat.on("message", (msg) => {
+        console.log(`${msg.senderUsername}: ${msg.content}`);
+    });
+    ```
+  </Tab>
+</Tabs>
+
+### Message Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | `number` | Message ID |
+| `content` | `string` | Message content |
+| `channelId` | `number` | Channel it was sent in |
+| `senderUsername` | `string` | Sender's username |
+| `sender` | `User \| null` | Sender (lazily resolved) |
+| `createdAt` | `Date` | When the message was sent |
+
+---
+
+## Sending Messages
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const channel = await rugplaySDK.Channel(123);
+    await channel.send("Hello!");
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const channel = await rugplaySDK.Channel(123);
+    await channel.send("Hello!");
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Channels
+
+### Getting a Channel
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const channel = await rugplaySDK.Channel(123);
+    console.log(channel.name);
+    console.log(channel.memberCount);
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const channel = await rugplaySDK.Channel(123);
+    ```
+  </Tab>
+</Tabs>
+
+### Creating a Channel
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const channel = await rugplaySDK.Channel.create("My Group", [user1, user2]);
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const channel = await rugplaySDK.Channel.create("My Group", [user1, user2]);
+    ```
+  </Tab>
+</Tabs>
+
+### Direct Message Channel
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const dm = await rugplaySDK.Channel.dm(user);
+    await dm.send("Hey!");
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const dm = await rugplaySDK.Channel.dm(user);
+    await dm.send("Hey!");
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Rugpay
+
+Rugpay is Rugplay's in-app payment request system. You can send payment requests to other users through Chat.
+
+### Sending a Request
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const channel = await rugplaySDK.Channel.dm(user);
+    await channel.sendRugpay(100, "pay me back");
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const channel = await rugplaySDK.Channel.dm(user);
+    await channel.sendRugpay(100, "pay me back");
+    ```
+  </Tab>
+</Tabs>
+
+### Listening for Requests
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    rugplaySDK.Chat.on("rugpayRequest", async (req) => {
+        console.log(`${req.payerUsername} sent a $${req.amount} request`);
+
+        // Accept it
+        await req.accept();
+
+        // Or decline
+        await req.decline();
+    });
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    rugplaySDK.Chat.on("rugpayRequest", async (req) => {
+        await req.accept();
+    });
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Measuring Latency
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const ms = await rugplaySDK.Chat.measureLatency();
+    if (ms === null) {
+        console.log("Chat not connected.");
+    } else {
+        console.log(`Chat latency: ${ms.toFixed(1)}ms`);
+    }
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const ms = await rugplaySDK.Chat.measureLatency();
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Connection Management
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    await rugplaySDK.Chat.connect();
+    await rugplaySDK.Chat.disconnect();
+
+    console.log(rugplaySDK.Chat.connected); // boolean
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    await rugplaySDK.Chat.connect();
+    await rugplaySDK.Chat.disconnect();
+    ```
+  </Tab>
+</Tabs>
+
+The Chat WebSocket automatically reconnects with exponential backoff if the connection drops.

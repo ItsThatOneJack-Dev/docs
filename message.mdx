@@ -1,0 +1,69 @@
+---
+title: 'Message'
+---
+
+---
+title: Message
+description: Chat messages received via the Events WebSocket
+---
+
+`Message` objects are emitted by the `Chat` WebSocket when a new message arrives.
+
+---
+
+## Listening for Messages
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    rugplaySDK.Chat.on("message", async (msg) => {
+        console.log(`${msg.senderUsername}: ${msg.content}`);
+
+        if (msg.content === "ping") {
+            await msg.reply("pong");
+        }
+    });
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    rugplaySDK.Chat.on("message", async (msg) => {
+        if (msg.content === "ping") await msg.reply("pong");
+    });
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | `number` | Message ID |
+| `content` | `string` | Message text |
+| `channelId` | `number` | Channel this was sent in |
+| `senderUsername` | `string` | Sender's username |
+| `sender` | `User \| null` | Sender (lazily resolved) |
+| `createdAt` | `Date` | When the message was sent |
+
+---
+
+## Methods
+
+### reply(content)
+
+Sends a message back to the same channel.
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    await msg.reply("Hello back!");
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    await msg.reply("Hello back!");
+    ```
+  </Tab>
+</Tabs>

@@ -1,0 +1,106 @@
+---
+title: Info
+description: SDK version, changelog, latency, and connectivity
+---
+
+`rugplaySDK.info` exposes metadata about the SDK itself and utilities for checking connectivity and measuring latency.
+
+---
+
+## Version
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    console.log(rugplaySDK.info.version);
+    // In a userscript: "2.0.3" (from @version in userscript header via GM_info)
+    // In a server script: "2"
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    console.log(rugplaySDK.info.version);
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Changelog
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    console.log(rugplaySDK.info.changelog);
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    console.log(rugplaySDK.info.changelog);
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Latency
+
+Measures round-trip ping/pong latency on the Chat and Events WebSockets. Returns `null` for any socket that is not currently connected.
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const latency = await rugplaySDK.info.measureLatency();
+
+    console.log(`Events: ${latency.events?.toFixed(1) ?? "not connected"}ms`);
+    console.log(`Chat:   ${latency.chat?.toFixed(1)   ?? "not connected"}ms`);
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const latency = await rugplaySDK.info.measureLatency();
+
+    if (latency.events !== null) {
+        console.log(`Events: ${latency.events.toFixed(1)}ms`);
+    }
+    ```
+  </Tab>
+</Tabs>
+
+You can also measure latency for a single socket directly:
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const eventsMs = await rugplaySDK.Events.measureLatency();
+    const chatMs   = await rugplaySDK.Chat.measureLatency();
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const eventsMs = await rugplaySDK.Events.measureLatency();
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Online Check
+
+Checks whether Rugplay is reachable by making a lightweight request. Returns `true` if the server responds, `false` otherwise.
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const online = await rugplaySDK.info.isOnline();
+    if (!online) {
+        console.log("Rugplay appears to be down.");
+    }
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const online = await rugplaySDK.info.isOnline();
+    ```
+  </Tab>
+</Tabs>

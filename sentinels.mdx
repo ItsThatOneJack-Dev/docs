@@ -1,0 +1,106 @@
+---
+title: Sentinels
+description: How sentinel objects work in RugplaySDK
+---
+
+Sentinels are frozen singleton objects used throughout the SDK to represent categorical values — similar to enums but with a consistent identity check pattern.
+
+---
+
+## What is a Sentinel?
+
+A sentinel is a plain object with a marker property that identifies its type, and an `id` string that identifies its value. They are created with `Object.freeze()` so they cannot be mutated.
+
+```ts
+// Example sentinel
+const towerDifficulty.EASY = Object.freeze({
+    __towerDifficulty: true,
+    id: "easy",
+});
+```
+
+You compare sentinels with `===`:
+
+```ts
+if (game.difficulty === rugplaySDK.towerDifficulty.EASY) {
+    console.log("Easy mode");
+}
+```
+
+---
+
+## Sentinel Groups
+
+| Group | Access | Used For |
+|-------|--------|----------|
+| `results` | `rugplaySDK.results.SUCCESS` | Operation outcomes |
+| `nameStyles` | `rugplaySDK.nameStyles.GOLD` | Equipped name styles |
+| `crateTiers` | `rugplaySDK.crateTiers.PREMIUM` | Crate tiers in the shop |
+| `towerDifficulty` | `rugplaySDK.towerDifficulty.HARD` | Tower game difficulty |
+| `achievements` | `rugplaySDK.achievements.CLOUD_9` | Achievement identifiers |
+
+---
+
+## nameStyles
+
+| Sentinel | ID |
+|----------|----|
+| `nameStyles.DEFAULT` | `"default"` |
+| `nameStyles.GOLD` | `"gold"` |
+| `nameStyles.DIAMOND` | `"diamond"` |
+| `nameStyles.RAINBOW` | `"rainbow"` |
+| `nameStyles.OCEAN` | `"ocean"` |
+| `nameStyles.PURPLE` | `"purple"` |
+| `nameStyles.GREEN` | `"green"` |
+| `nameStyles.RED` | `"red"` |
+| `nameStyles.ORANGE` | `"orange"` |
+
+---
+
+## crateTiers
+
+| Sentinel | ID |
+|----------|----|
+| `crateTiers.STANDARD` | `"standard"` |
+| `crateTiers.PREMIUM` | `"premium"` |
+| `crateTiers.LEGENDARY` | `"legendary"` |
+| `crateTiers.MYTHIC` | `"mythic"` |
+
+---
+
+## towerDifficulty
+
+| Sentinel | ID |
+|----------|----|
+| `towerDifficulty.EASY` | `"easy"` |
+| `towerDifficulty.MEDIUM` | `"medium"` |
+| `towerDifficulty.HARD` | `"hard"` |
+
+---
+
+## Using Sentinels as Function Arguments
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    // Open a crate
+    await me.openCrate(rugplaySDK.crateTiers.LEGENDARY);
+
+    // Start a tower game
+    await rugplaySDK.arcade.tower(100, rugplaySDK.towerDifficulty.HARD);
+
+    // Equip a name style
+    await me.equipNameStyle(rugplaySDK.nameStyles.RAINBOW);
+
+    // Claim an achievement
+    await me.claimAchievement(rugplaySDK.achievements.MILLIONAIRE);
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    await me.openCrate(rugplaySDK.crateTiers.LEGENDARY);
+    await rugplaySDK.arcade.tower(100, rugplaySDK.towerDifficulty.HARD);
+    await me.equipNameStyle(rugplaySDK.nameStyles.RAINBOW);
+    ```
+  </Tab>
+</Tabs>

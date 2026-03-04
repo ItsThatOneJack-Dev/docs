@@ -1,0 +1,251 @@
+---
+title: Coin
+description: Fetch coins, buy, sell, get holders, comments, and more
+---
+
+## Getting a Coin
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const coin = await rugplaySDK.Coin("CATBOI");
+    const coin = await rugplaySDK.Coin("*CATBOI"); // asterisk prefix is stripped automatically
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const coin = await rugplaySDK.Coin("CATBOI");
+    const coin = await rugplaySDK.Coin("*CATBOI");
+    ```
+  </Tab>
+</Tabs>
+
+Coin objects are cached — fetching the same symbol twice returns the cached instance.
+
+---
+
+## Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | `number` | Numeric coin ID |
+| `name` | `string` | Coin name |
+| `symbol` | `string` | Uppercase symbol |
+| `iconUrl` | `string \| null` | Full icon URL |
+| `currentPrice` | `number` | Current price in USD |
+| `marketCap` | `number` | Market capitalisation |
+| `volume24h` | `number` | 24h trading volume |
+| `change24h` | `number` | 24h price change percentage |
+| `circulatingSupply` | `number` | Total circulating supply |
+| `isListed` | `boolean` | Whether the coin is listed |
+| `createdAt` | `Date \| null` | Creation date |
+| `creator` | `User \| null` | Creator (lazily resolved) |
+
+---
+
+## Trading
+
+<AccordionGroup>
+  <Accordion title="buy(amount)">
+    Buys the coin with a cash amount. Supports percent-based amounts.
+
+    <Tabs>
+      <Tab title="TypeScript">
+        ```ts
+        await coin.buy(100);                           // buy $100 worth
+        await coin.buy(rugplaySDK.percent(10));        // buy with 10% of balance
+        await coin.buy(rugplaySDK.percent(100));       // buy with entire balance
+        ```
+      </Tab>
+      <Tab title="JavaScript">
+        ```js
+        await coin.buy(100);
+        await coin.buy(rugplaySDK.percent(10));
+        ```
+      </Tab>
+    </Tabs>
+
+    Returns `results.SUCCESS` or `results.FAILURE`. May also return `results.RATE_LIMITED`.
+  </Accordion>
+
+  <Accordion title="sell(amount)">
+    Sells coins by quantity held. Supports percent-based amounts.
+
+    <Tabs>
+      <Tab title="TypeScript">
+        ```ts
+        await coin.sell(rugplaySDK.percent(100)); // sell everything
+        await coin.sell(rugplaySDK.percent(50));  // sell half
+        ```
+      </Tab>
+      <Tab title="JavaScript">
+        ```js
+        await coin.sell(rugplaySDK.percent(100));
+        await coin.sell(rugplaySDK.percent(50));
+        ```
+      </Tab>
+    </Tabs>
+  </Accordion>
+
+  <Accordion title="refresh()">
+    Re-fetches the coin from the API, bypassing the cache.
+
+    <Tabs>
+      <Tab title="TypeScript">
+        ```ts
+        const fresh = await coin.refresh();
+        console.log(fresh.currentPrice);
+        ```
+      </Tab>
+      <Tab title="JavaScript">
+        ```js
+        const fresh = await coin.refresh();
+        ```
+      </Tab>
+    </Tabs>
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Maths Helpers
+
+These helpers are pure functions and do not make network requests.
+
+<AccordionGroup>
+  <Accordion title="dollarsToCoins(dollars)">
+    ```ts
+    const coins = coin.dollarsToCoins(100); // how many coins $100 buys
+    ```
+  </Accordion>
+  <Accordion title="coinsToDollars(coins)">
+    ```ts
+    const value = coin.coinsToDollars(50000); // value of 50,000 coins
+    ```
+  </Accordion>
+  <Accordion title="predictPrice(percentChange)">
+    ```ts
+    const price = coin.predictPrice(50); // price if coin goes up 50%
+    ```
+  </Accordion>
+  <Accordion title="predictMarketCap(percentChange)">
+    ```ts
+    const mcap = coin.predictMarketCap(-20); // mcap if coin drops 20%
+    ```
+  </Accordion>
+  <Accordion title="supplyPercent(coins)">
+    ```ts
+    const pct = coin.supplyPercent(1_000_000); // what % of supply is 1M coins
+    ```
+  </Accordion>
+  <Accordion title="coinsForSupplyPercent(percent)">
+    ```ts
+    const qty = coin.coinsForSupplyPercent(1); // how many coins = 1% of supply
+    ```
+  </Accordion>
+  <Accordion title="priceAtMarketCap(targetMarketCap)">
+    ```ts
+    const price = coin.priceAtMarketCap(1_000_000); // price if mcap hits $1M
+    ```
+  </Accordion>
+  <Accordion title="marketCapAtPrice(targetPrice)">
+    ```ts
+    const mcap = coin.marketCapAtPrice(1.00); // mcap if price hits $1
+    ```
+  </Accordion>
+  <Accordion title="predictHoldingsValue(coins, percentChange)">
+    ```ts
+    const value = coin.predictHoldingsValue(50000, 100); // value of 50k coins if price doubles
+    ```
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Holders
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const { holders, totalHolders } = await coin.getHolders(50);
+
+    console.log(`${totalHolders} total holders`);
+    for (const h of holders) {
+        console.log(`#${h.rank} ${h.username} — ${h.percentage.toFixed(4)}% (${h.quantity} coins)`);
+    }
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const { holders, totalHolders } = await coin.getHolders(50);
+    console.log(`${totalHolders} total holders`);
+    ```
+  </Tab>
+</Tabs>
+
+Each holder entry:
+
+```ts
+interface HolderEntry {
+    rank:             number;
+    username:         string;
+    name:             string;
+    avatarUrl:        string | null;
+    quantity:         number;
+    percentage:       number;
+    liquidationValue: number;
+    user:             User | null; // lazily resolved
+}
+```
+
+---
+
+## Comments
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    // Post a comment
+    await coin.comment("to the moon 🚀");
+
+    // Get comments
+    const comments = await coin.getComments();
+    for (const c of comments) {
+        console.log(`${c.username}: ${c.content}`);
+    }
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    await coin.comment("to the moon 🚀");
+
+    const comments = await coin.getComments();
+    for (const c of comments) {
+        console.log(`${c.username}: ${c.content}`);
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Getting Coins by Creator
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    // Via the Coin class directly
+    const coins = await rugplaySDK.Coin.byCreator("itoj");
+    const coins = await rugplaySDK.Coin.byCreator(user); // pass a User instance
+
+    // Or via the User instance
+    const coins = await user.getCreatedCoins();
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const coins = await rugplaySDK.Coin.byCreator("itoj");
+    const coins = await user.getCreatedCoins();
+    ```
+  </Tab>
+</Tabs>

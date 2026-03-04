@@ -1,0 +1,214 @@
+---
+title: Backoff
+description: Retry helpers with configurable delay strategies
+---
+
+The backoff helpers let you retry async operations with automatic delays between attempts. They are particularly useful when dealing with rate limits.
+
+All five strategies share the same callback signature and config shape.
+
+---
+
+## Callback Signature
+
+```ts
+async (step, lastBackoff, config, peek, accept) => T
+```
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `step` | `number` | Current attempt index (0-based) |
+| `lastBackoff` | `number` | Delay that was just waited (0 on first attempt) |
+| `config` | `BackoffConfig` | Resolved config with defaults filled in |
+| `peek()` | `() => number` | Returns what the next delay would be if this attempt fails |
+| `accept(value)` | `(value: T) => void` | Forces the loop to exit with this value immediately |
+
+Return `results.RATE_LIMITED` from the callback to trigger a retry. Call `accept(value)` to exit immediately with a successful result.
+
+---
+
+## Config
+
+```ts
+interface BackoffConfig<T> {
+    initialDelay:  number;           // required — delay before second attempt (ms)
+    maxDelay?:     number;           // default: Infinity
+    maxRetries?:   number;           // default: Infinity
+    shouldRetry?:  (result: T) => boolean;  // default: checks for RATE_LIMITED
+    onRetry?:      (step, lastBackoff, nextBackoff) => void;
+    onAbort?:      (lastResult: T) => T;    // called when maxRetries exceeded
+}
+```
+
+---
+
+## Strategies
+
+<AccordionGroup>
+  <Accordion title="exponentialBackoff (recommended)">
+    Doubles the delay each attempt (or uses a custom base). Best for most rate-limit situations.
+
+    <Tabs>
+      <Tab title="TypeScript">
+        ```ts
+        const result = await rugplaySDK.helpers.exponentialBackoff(
+            async (step, last, config, peek, accept) => {
+                const r = await coin.buy(100);
+                if (r === rugplaySDK.results.SUCCESS) accept(r);
+                return r;
+            },
+            {
+                initialDelay: 1000,
+                maxDelay:     30_000,
+                maxRetries:   5,
+                base:         2,
+                onRetry: (step, last, next) => {
+                    console.log(`Rate limited. Retrying in ${next}ms (attempt ${step + 1})`);
+                },
+            },
+        );
+        ```
+      </Tab>
+      <Tab title="JavaScript">
+        ```js
+        const result = await rugplaySDK.helpers.exponentialBackoff(
+            async (step, last, config, peek, accept) => {
+                const r = await coin.buy(100);
+                if (r === rugplaySDK.results.SUCCESS) accept(r);
+                return r;
+            },
+            { initialDelay: 1000, maxRetries: 5 },
+        );
+        ```
+      </Tab>
+    </Tabs>
+  </Accordion>
+
+  <Accordion title="linearBackoff">
+    Adds a fixed increment each attempt.
+
+    <Tabs>
+      <Tab title="TypeScript">
+        ```ts
+        // Delays: 1000, 2000, 3000, 4000...
+        const result = await rugplaySDK.helpers.linearBackoff(
+            async (step, last, config, peek, accept) => {
+                const r = await coin.buy(100);
+                if (r === rugplaySDK.results.SUCCESS) accept(r);
+                return r;
+            },
+            { initialDelay: 1000, increment: 1000, maxRetries: 10 },
+        );
+        ```
+      </Tab>
+      <Tab title="JavaScript">
+        ```js
+        const result = await rugplaySDK.helpers.linearBackoff(callback, {
+            initialDelay: 1000,
+            increment:    1000,
+        });
+        ```
+      </Tab>
+    </Tabs>
+  </Accordion>
+
+  <Accordion title="logarithmicBackoff">
+    Grows quickly at first then flattens out. Good for situations where you expect the first few retries to be needed but don't want delays to grow unboundedly fast.
+
+    <Tabs>
+      <Tab title="TypeScript">
+        ```ts
+        const result = await rugplaySDK.helpers.logarithmicBackoff(callback, {
+            initialDelay: 500,
+            maxDelay:     10_000,
+        });
+        ```
+      </Tab>
+      <Tab title="JavaScript">
+        ```js
+        const result = await rugplaySDK.helpers.logarithmicBackoff(callback, {
+            initialDelay: 500,
+        });
+        ```
+      </Tab>
+    </Tabs>
+  </Accordion>
+
+  <Accordion title="steppedBackoff">
+    Uses a fixed array of delays in order. Gives up after the last step is exhausted.
+
+    <Tabs>
+      <Tab title="TypeScript">
+        ```ts
+        // Delays: 500, 1000, 2000, 5000 — then gives up
+        const result = await rugplaySDK.helpers.steppedBackoff(callback, {
+            steps: [500, 1000, 2000, 5000],
+        });
+        ```
+      </Tab>
+      <Tab title="JavaScript">
+        ```js
+        const result = await rugplaySDK.helpers.steppedBackoff(callback, {
+            steps: [500, 1000, 2000, 5000],
+        });
+        ```
+      </Tab>
+    </Tabs>
+  </Accordion>
+
+  <Accordion title="customBackoff">
+    Provide your own delay function `(step, lastBackoff) => number`.
+
+    <Tabs>
+      <Tab title="TypeScript">
+        ```ts
+        const result = await rugplaySDK.helpers.customBackoff(callback, {
+            initialDelay:    1000,
+            delayCalculator: (step, last) => last + Math.random() * 1000,
+        });
+        ```
+      </Tab>
+      <Tab title="JavaScript">
+        ```js
+        const result = await rugplaySDK.helpers.customBackoff(callback, {
+            initialDelay:    1000,
+            delayCalculator: (step, last) => last + Math.random() * 1000,
+        });
+        ```
+      </Tab>
+    </Tabs>
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Using `peek()` to Log Next Delay
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    await rugplaySDK.helpers.exponentialBackoff(
+        async (step, last, config, peek, accept) => {
+            const r = await coin.buy(100);
+            if (r !== rugplaySDK.results.RATE_LIMITED) accept(r);
+            console.log(`Rate limited. Next retry in ${peek()}ms`);
+            return r;
+        },
+        { initialDelay: 1000, maxRetries: 5 },
+    );
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    await rugplaySDK.helpers.exponentialBackoff(
+        async (step, last, config, peek, accept) => {
+            const r = await coin.buy(100);
+            if (r !== rugplaySDK.results.RATE_LIMITED) accept(r);
+            console.log(`Next retry in ${peek()}ms`);
+            return r;
+        },
+        { initialDelay: 1000 },
+    );
+    ```
+  </Tab>
+</Tabs>

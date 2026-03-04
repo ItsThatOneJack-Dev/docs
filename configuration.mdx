@@ -1,0 +1,126 @@
+---
+title: Configuration
+description: Mirrors, server auth, and build configuration
+---
+
+## Base Domain
+
+By default RugplaySDK points at `rugplay.com`. Since Rugplay is open source and can be self-hosted or mirrored, you can change this by editing the `BASE_DOMAIN` constant near the top of the distributed file — it sits just below the userscript header for easy access.
+
+```js
+// ==UserScript==
+// ...
+// ==/UserScript==
+
+// Change this to use a different Rugplay mirror (e.g. "rugplaymirror.com")
+const BASE_DOMAIN = "rugplay.com";
+```
+
+Everything in the SDK — API calls, WebSocket connections, S3 proxy URLs — will automatically use whichever domain you set here. The only URLs that are unaffected are the Vaaq API (`api.vaaq.dev`) and the S3 storage proxy, since those are separate services.
+
+<Note>
+  The `BASE_DOMAIN` constant only exists in the built `user.js` and `server.js` distributions, not in the TypeScript source. If you are building from source, edit `src/helpers/baseUrl.ts` instead.
+</Note>
+
+---
+
+## Server Authentication
+
+When running outside the browser you need to provide session credentials manually via `ServerAuth`.
+
+### Getting Your Cookies
+
+Open rugplay.com in your browser, open DevTools, and navigate to **Application → Cookies → rugplay.com**. You need three values:
+
+| Cookie | Description |
+|--------|-------------|
+| `session_data` | Your session JWT |
+| `session_token` | Your session token (URL-decode it first) |
+| `cf_clearance` | Cloudflare clearance token |
+
+<Warning>
+  `cf_clearance` tokens expire and are tied to your IP address. If your server is on a different IP than your browser you will need to refresh this regularly.
+</Warning>
+
+### Initialising
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    import { ServerAuth } from "rugplaysdk";
+
+    ServerAuth.init({
+        sessionData:  process.env.SESSION_DATA!,
+        sessionToken: decodeURIComponent(process.env.SESSION_TOKEN!),
+        cfClearance:  process.env.CF_CLEARANCE!,
+    });
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    import { ServerAuth } from "rugplaysdk";
+
+    ServerAuth.init({
+        sessionData:  process.env.SESSION_DATA,
+        sessionToken: decodeURIComponent(process.env.SESSION_TOKEN),
+        cfClearance:  process.env.CF_CLEARANCE,
+    });
+    ```
+  </Tab>
+</Tabs>
+
+### Validating
+
+Call `ServerAuth.validate()` before doing anything else to confirm your credentials are still valid:
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    if (!await ServerAuth.validate()) {
+        console.error("Session expired or invalid. Refresh your cookies.");
+        process.exit(1);
+    }
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    if (!await ServerAuth.validate()) {
+        console.error("Session expired or invalid. Refresh your cookies.");
+        process.exit(1);
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Auto-Connect (Userscript Only)
+
+In the userscript distribution, the SDK automatically calls `Chat.connect()` and `Events.connect()` when it detects an active session on page load. You do not need to connect manually.
+
+If you want to disable this behaviour, remove or comment out the auto-connect block at the bottom of `rugplaySDK.user.js`:
+
+```js
+User.me().then((me) => {
+    if (!me) return;
+    Chat.connect();
+    Events.connect();
+});
+```
+
+In the server distribution, you must connect manually:
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    await rugplaySDK.Chat.connect();
+    await rugplaySDK.Events.connect();
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    await rugplaySDK.Chat.connect();
+    await rugplaySDK.Events.connect();
+    ```
+  </Tab>
+</Tabs>

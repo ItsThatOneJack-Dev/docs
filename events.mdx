@@ -1,0 +1,199 @@
+---
+title: Events
+description: Real-time trade, notification, and arcade activity events
+---
+
+The Events WebSocket connects to Rugplay's live event stream. It delivers trade activity, notifications, and arcade results in real time.
+
+---
+
+## Connecting
+
+In the userscript, Events connects automatically on page load. In the server distribution:
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    await rugplaySDK.Events.connect();
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    await rugplaySDK.Events.connect();
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Events
+
+### Live Trades
+
+Fires whenever any user buys or sells any coin.
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    rugplaySDK.Events.on("trade", (tx) => {
+        if (tx.type === "BUY") {
+            console.log(`${tx.username} bought ${tx.quantity} ${tx.symbol} for $${tx.totalValue}`);
+        }
+    });
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    rugplaySDK.Events.on("trade", (tx) => {
+        console.log(`${tx.type} ${tx.symbol} — $${tx.totalValue}`);
+    });
+    ```
+  </Tab>
+</Tabs>
+
+```ts
+interface BuyTransaction {
+    type:       "BUY";
+    id:         number | null;
+    symbol:     string;
+    price:      number;
+    quantity:   number;
+    totalValue: number;
+    timestamp:  Date;
+    user:       User | null; // lazily resolved
+}
+```
+
+### Cash Received
+
+Fires when the logged-in user receives a cash transfer.
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    rugplaySDK.Events.on("receiveCash", (e) => {
+        console.log(`Received $${e.amount} from @${e.senderUsername}`);
+    });
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    rugplaySDK.Events.on("receiveCash", (e) => {
+        console.log(`Received $${e.amount} from @${e.senderUsername}`);
+    });
+    ```
+  </Tab>
+</Tabs>
+
+### Coins Received
+
+Fires when the logged-in user receives a coin transfer.
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    rugplaySDK.Events.on("receiveCoins", (e) => {
+        console.log(`Received ${e.amount} ${e.coinSymbol} from @${e.senderUsername}`);
+    });
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    rugplaySDK.Events.on("receiveCoins", (e) => {
+        console.log(`Received ${e.amount} ${e.coinSymbol} from @${e.senderUsername}`);
+    });
+    ```
+  </Tab>
+</Tabs>
+
+### Arcade Activity
+
+Fires for live arcade game results from all users.
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    rugplaySDK.Events.on("arcadeActivity", (e) => {
+        const outcome = e.won ? "won" : "lost";
+        console.log(`${e.username} ${outcome} $${e.amount} on ${e.game}`);
+    });
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    rugplaySDK.Events.on("arcadeActivity", (e) => {
+        const outcome = e.won ? "won" : "lost";
+        console.log(`${e.username} ${outcome} $${e.amount} on ${e.game}`);
+    });
+    ```
+  </Tab>
+</Tabs>
+
+### Generic Notifications
+
+Catches any notification type not handled by a more specific event.
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    rugplaySDK.Events.on("notification", (e) => {
+        console.log(`[${e.notificationType}] ${e.title}: ${e.message}`);
+    });
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    rugplaySDK.Events.on("notification", (e) => {
+        console.log(`[${e.notificationType}] ${e.title}: ${e.message}`);
+    });
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Measuring Latency
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const ms = await rugplaySDK.Events.measureLatency();
+    if (ms === null) {
+        console.log("Events not connected.");
+    } else {
+        console.log(`Events latency: ${ms.toFixed(1)}ms`);
+    }
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const ms = await rugplaySDK.Events.measureLatency();
+    console.log(ms !== null ? `${ms.toFixed(1)}ms` : "Not connected");
+    ```
+  </Tab>
+</Tabs>
+
+Returns `null` if the WebSocket is not currently connected.
+
+---
+
+## Connection Management
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    await rugplaySDK.Events.connect();
+    await rugplaySDK.Events.disconnect();
+
+    console.log(rugplaySDK.Events.connected); // boolean
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    await rugplaySDK.Events.connect();
+    await rugplaySDK.Events.disconnect();
+    ```
+  </Tab>
+</Tabs>
+
+The Events WebSocket automatically reconnects with exponential backoff if the connection drops.

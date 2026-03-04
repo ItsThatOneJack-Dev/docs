@@ -1,0 +1,91 @@
+---
+title: Coinflip, Dice & Slots
+description: Instant result arcade games
+---
+
+These three games are instant — place your bet and get a result immediately.
+
+---
+
+## Coinflip
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const result = await rugplaySDK.arcade.coinflip(100);
+
+    if (result === rugplaySDK.results.COINFLIP_WIN) {
+        console.log("Heads! You won.");
+    } else if (result === rugplaySDK.results.COINFLIP_LOSS) {
+        console.log("Tails. You lost.");
+    }
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const result = await rugplaySDK.arcade.coinflip(100);
+
+    if (result === rugplaySDK.results.COINFLIP_WIN) {
+        console.log("Won!");
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Dice
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const result = await rugplaySDK.arcade.dice(100);
+
+    if (result === rugplaySDK.results.DICE_WIN) {
+        console.log("You won!");
+    } else if (result === rugplaySDK.results.DICE_LOSS) {
+        console.log("You lost.");
+    }
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const result = await rugplaySDK.arcade.dice(100);
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Slots
+
+Slots has three possible outcomes — a loss, two matching symbols, or three matching symbols.
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const result = await rugplaySDK.arcade.slots(100);
+
+    switch (result) {
+        case rugplaySDK.results.SLOTS_3_OF_A_KIND:
+            console.log("Jackpot! Three of a kind.");
+            break;
+        case rugplaySDK.results.SLOTS_2_OF_A_KIND:
+            console.log("Two of a kind — small win.");
+            break;
+        case rugplaySDK.results.SLOTS_LOSS:
+            console.log("No match.");
+            break;
+    }
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const result = await rugplaySDK.arcade.slots(100);
+
+    if (result === rugplaySDK.results.SLOTS_3_OF_A_KIND) {
+        console.log("Jackpot!");
+    }
+    ```
+  </Tab>
+</Tabs>

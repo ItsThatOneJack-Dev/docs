@@ -1,0 +1,135 @@
+---
+title: Results
+description: Result sentinels returned by SDK methods
+---
+
+Most SDK methods return result sentinels instead of throwing exceptions. Compare them with `===`.
+
+```ts
+const result = await coin.buy(100);
+
+if (result === rugplaySDK.results.SUCCESS)      { /* ok */ }
+if (result === rugplaySDK.results.FAILURE)      { /* generic failure */ }
+if (result === rugplaySDK.results.RATE_LIMITED) { /* try again later */ }
+```
+
+---
+
+## All Sentinels
+
+### General
+
+| Sentinel | Description |
+|----------|-------------|
+| `SUCCESS` | Operation succeeded |
+| `FAILURE` | Generic failure |
+| `RATE_LIMITED` | Too many requests — slow down |
+
+### Coinflip
+
+| Sentinel | Description |
+|----------|-------------|
+| `COINFLIP_WIN` | Won the coinflip |
+| `COINFLIP_LOSS` | Lost the coinflip |
+
+### Dice
+
+| Sentinel | Description |
+|----------|-------------|
+| `DICE_WIN` | Won the dice roll |
+| `DICE_LOSS` | Lost the dice roll |
+
+### Slots
+
+| Sentinel | Description |
+|----------|-------------|
+| `SLOTS_LOSS` | No matching symbols |
+| `SLOTS_2_OF_A_KIND` | Two matching symbols |
+| `SLOTS_3_OF_A_KIND` | Three matching symbols (jackpot) |
+
+### Mines
+
+| Sentinel | Description |
+|----------|-------------|
+| `MINES_SAFE` | Revealed tile was safe |
+| `MINES_HIT` | Hit a mine — game over |
+| `MINES_COMPLETE` | All safe tiles revealed |
+
+### Tower
+
+| Sentinel | Description |
+|----------|-------------|
+| `TOWER_SAFE` | Revealed tile was safe |
+| `TOWER_HIT` | Hit a bomb — game over |
+| `TOWER_COMPLETE` | All 10 floors cleared |
+
+### Daily Reward
+
+| Sentinel | Description |
+|----------|-------------|
+| `REWARD_NOT_AVAILABLE` | Daily reward not yet available |
+
+---
+
+## Checking Results
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const r = await rugplaySDK.arcade.mines(100);
+
+    // Simple equality check
+    if (r === rugplaySDK.results.MINES_HIT) {
+        console.log("Hit a mine!");
+    }
+
+    // Switch statement
+    switch (r) {
+        case rugplaySDK.results.MINES_SAFE:
+            console.log(`Safe! Multiplier: ${game.lastMultiplier}x`);
+            break;
+        case rugplaySDK.results.MINES_HIT:
+            console.log("Game over.");
+            break;
+        case rugplaySDK.results.MINES_COMPLETE:
+            console.log("All tiles cleared!");
+            break;
+    }
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const r = await coin.buy(100);
+    if (r === rugplaySDK.results.SUCCESS) {
+        console.log("Bought!");
+    } else if (r === rugplaySDK.results.RATE_LIMITED) {
+        console.log("Slow down!");
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Custom shouldRetry
+
+By default the backoff helpers check for `RATE_LIMITED`. You can change this:
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    await rugplaySDK.helpers.exponentialBackoff(callback, {
+        initialDelay: 1000,
+        shouldRetry:  (result) => result === rugplaySDK.results.FAILURE,
+    });
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    await rugplaySDK.helpers.exponentialBackoff(callback, {
+        initialDelay: 1000,
+        shouldRetry:  (r) => r === rugplaySDK.results.FAILURE,
+    });
+    ```
+  </Tab>
+</Tabs>

@@ -1,0 +1,56 @@
+---
+title: Levenshtein Distance
+description: Fuzzy string matching helper
+---
+
+`computeLevenshteinDistance` calculates the edit distance between two strings — the minimum number of single-character insertions, deletions, or substitutions needed to transform one string into the other.
+
+It's used internally by `achievements.getByName()` and `achievements.getByDescription()` for fuzzy search.
+
+---
+
+## Usage
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const dist = rugplaySDK.helpers.computeLevenshteinDistance("cloud", "Cloud 9");
+    // → 3 (insert space, 9, capitalise C)
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const dist = rugplaySDK.helpers.computeLevenshteinDistance("cloud", "Cloud 9");
+    ```
+  </Tab>
+</Tabs>
+
+Lower values mean more similar strings. A value of `0` means the strings are identical.
+
+---
+
+## Sorting by Similarity
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const query = "millionaire";
+    const names = rugplaySDK.achievements.all().map(a => a.name);
+
+    const sorted = names.sort((a, b) =>
+        rugplaySDK.helpers.computeLevenshteinDistance(query, a.toLowerCase()) -
+        rugplaySDK.helpers.computeLevenshteinDistance(query, b.toLowerCase())
+    );
+
+    console.log(sorted[0]); // closest match
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const sorted = names.sort((a, b) =>
+        rugplaySDK.helpers.computeLevenshteinDistance(query, a.toLowerCase()) -
+        rugplaySDK.helpers.computeLevenshteinDistance(query, b.toLowerCase())
+    );
+    ```
+  </Tab>
+</Tabs>

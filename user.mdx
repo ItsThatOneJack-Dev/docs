@@ -1,0 +1,363 @@
+---
+title: User
+description: Fetch users, manage your profile, trade history, achievements, and more
+---
+
+## Getting a User
+
+Users are fetched by username or numeric ID using the `User` factory.
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const user = await rugplaySDK.User("itoj");
+    const user = await rugplaySDK.User(300); // by ID
+
+    // Get the currently logged-in user
+    const me = await rugplaySDK.User.me(); // null if not logged in
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const user = await rugplaySDK.User("itoj");
+    const user = await rugplaySDK.User(300); // by ID
+
+    const me = await rugplaySDK.User.me(); // null if not logged in
+    ```
+  </Tab>
+</Tabs>
+
+User objects are cached — fetching the same user twice returns the cached instance without an extra network request.
+
+---
+
+## Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | `number` | Numeric user ID |
+| `displayName` | `string` | Display name |
+| `username` | `string` | Lowercase username |
+| `email` | `string \| null` | Email (current user only) |
+| `avatarUrl` | `string \| null` | Full avatar URL |
+| `bio` | `string \| null` | Profile bio |
+| `balance` | `number` | Cash balance at time of fetch |
+| `isAdmin` | `boolean` | Whether the user is an admin |
+| `prestigeLevel` | `number` | Current prestige level |
+
+---
+
+## Methods
+
+### Profile
+
+<AccordionGroup>
+  <Accordion title="refresh()">
+    Re-fetches the user from the API, bypassing the cache. Returns a fresh `User` instance.
+
+    <Tabs>
+      <Tab title="TypeScript">
+        ```ts
+        const fresh = await user.refresh();
+        console.log(fresh.balance);
+        ```
+      </Tab>
+      <Tab title="JavaScript">
+        ```js
+        const fresh = await user.refresh();
+        console.log(fresh.balance);
+        ```
+      </Tab>
+    </Tabs>
+  </Accordion>
+
+  <Accordion title="getNetWorth()">
+    Returns total portfolio value including coin holdings. Works for any user.
+
+    <Tabs>
+      <Tab title="TypeScript">
+        ```ts
+        const worth = await user.getNetWorth();
+        console.log(`Net worth: $${worth}`);
+        ```
+      </Tab>
+      <Tab title="JavaScript">
+        ```js
+        const worth = await user.getNetWorth();
+        console.log(`Net worth: $${worth}`);
+        ```
+      </Tab>
+    </Tabs>
+  </Accordion>
+
+  <Accordion title="getEquippedNameStyle()">
+    Returns the currently equipped name style sentinel, or `null` if none. Always fetches live, never uses cache.
+
+    <Tabs>
+      <Tab title="TypeScript">
+        ```ts
+        const style = await user.getEquippedNameStyle();
+        if (style) console.log(style.id); // e.g. "gold"
+        ```
+      </Tab>
+      <Tab title="JavaScript">
+        ```js
+        const style = await user.getEquippedNameStyle();
+        if (style) console.log(style.id);
+        ```
+      </Tab>
+    </Tabs>
+  </Accordion>
+
+  <Accordion title="isCurrentUser()">
+    Returns `true` if this `User` instance is the currently logged-in user. Result is cached per instance.
+
+    <Tabs>
+      <Tab title="TypeScript">
+        ```ts
+        if (await user.isCurrentUser()) {
+            console.log("This is me!");
+        }
+        ```
+      </Tab>
+      <Tab title="JavaScript">
+        ```js
+        if (await user.isCurrentUser()) {
+            console.log("This is me!");
+        }
+        ```
+      </Tab>
+    </Tabs>
+  </Accordion>
+
+  <Accordion title="getCreatedCoins()">
+    Returns all coins created by this user as `Coin[]`.
+
+    <Tabs>
+      <Tab title="TypeScript">
+        ```ts
+        const coins = await user.getCreatedCoins();
+        coins.forEach(c => console.log(c.symbol, c.currentPrice));
+        ```
+      </Tab>
+      <Tab title="JavaScript">
+        ```js
+        const coins = await user.getCreatedCoins();
+        coins.forEach(c => console.log(c.symbol, c.currentPrice));
+        ```
+      </Tab>
+    </Tabs>
+  </Accordion>
+</AccordionGroup>
+
+### Financials (Current User Only)
+
+<AccordionGroup>
+  <Accordion title="getBalance()">
+    Returns the current live cash balance.
+
+    <Tabs>
+      <Tab title="TypeScript">
+        ```ts
+        const me = await rugplaySDK.User.me();
+        const balance = await me.getBalance();
+        ```
+      </Tab>
+      <Tab title="JavaScript">
+        ```js
+        const me = await rugplaySDK.User.me();
+        const balance = await me.getBalance();
+        ```
+      </Tab>
+    </Tabs>
+  </Accordion>
+
+  <Accordion title="getGems()">
+    Returns the current gem balance.
+  </Accordion>
+
+  <Accordion title="getHoldings()">
+    Returns all coin holdings as a `Record<symbol, HoldingData>`.
+
+    ```ts
+    interface HoldingData {
+        quantity:          number;
+        value:             number;
+        change24h:         number;
+        avgPurchasePrice:  number;
+        costBasis:         number;
+        percentageChange:  number;
+    }
+    ```
+
+    <Tabs>
+      <Tab title="TypeScript">
+        ```ts
+        const holdings = await me.getHoldings();
+        for (const [symbol, data] of Object.entries(holdings)) {
+            console.log(`${symbol}: ${data.quantity} coins worth $${data.value}`);
+        }
+        ```
+      </Tab>
+      <Tab title="JavaScript">
+        ```js
+        const holdings = await me.getHoldings();
+        for (const [symbol, data] of Object.entries(holdings)) {
+            console.log(`${symbol}: ${data.quantity} coins worth $${data.value}`);
+        }
+        ```
+      </Tab>
+    </Tabs>
+  </Accordion>
+
+  <Accordion title="getHeldAmount(symbol)">
+    Returns the quantity held of a specific coin. Returns `0` if not held.
+
+    <Tabs>
+      <Tab title="TypeScript">
+        ```ts
+        const qty = await me.getHeldAmount("CATBOI");
+        ```
+      </Tab>
+      <Tab title="JavaScript">
+        ```js
+        const qty = await me.getHeldAmount("CATBOI");
+        ```
+      </Tab>
+    </Tabs>
+  </Accordion>
+
+  <Accordion title="getIlliquid()">
+    Returns the total value of coin holdings (total portfolio minus cash balance).
+  </Accordion>
+</AccordionGroup>
+
+### Transaction History (Current User Only)
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    // All transactions
+    const all = await me.getTransactionHistory(50);
+
+    // Only sells
+    const sells = await me.getTransactionHistory(50, "SELL");
+
+    // Only buys
+    const buys = await me.getTransactionHistory(50, "BUY");
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const all   = await me.getTransactionHistory(50);
+    const sells = await me.getTransactionHistory(50, "SELL");
+    const buys  = await me.getTransactionHistory(50, "BUY");
+    ```
+  </Tab>
+</Tabs>
+
+Each transaction has the shape:
+
+```ts
+interface TradeTransaction {
+    type:       "BUY" | "SELL";
+    id:         number;
+    symbol:     string;
+    price:      number;
+    quantity:   number;
+    totalValue: number;
+    timestamp:  Date;
+    user:       User | null; // lazily resolved
+}
+```
+
+### Achievements (Current User Only)
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    // All achievements
+    const all = await me.getAchievements();
+
+    // Only unlocked and unclaimed
+    const claimable = await me.getAchievements({ unlocked: true, claimed: false });
+
+    // Filter by category and difficulty
+    const hard = await me.getAchievements({ category: "arcade", difficulty: "legendary" });
+
+    // Claim one
+    const reward = await me.claimAchievement(rugplaySDK.achievements.CLOUD_9);
+    console.log(`Claimed $${reward.cashReward} and ${reward.gemReward} gems`);
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const all      = await me.getAchievements();
+    const claimable = await me.getAchievements({ unlocked: true, claimed: false });
+    const reward   = await me.claimAchievement(rugplaySDK.achievements.CLOUD_9);
+    ```
+  </Tab>
+</Tabs>
+
+### Daily Reward (Current User Only)
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const status = await me.getDailyRewardStatus();
+    console.log(`Can claim: ${status.canClaim}`);
+    console.log(`Amount: $${status.rewardAmount}`);
+    console.log(`Streak: ${status.loginStreak} days`);
+
+    if (status.canClaim) {
+        const reward = await me.claimDailyReward();
+        if (reward !== rugplaySDK.results.REWARD_NOT_AVAILABLE) {
+            console.log(`Claimed $${reward.amount}! New balance: $${reward.newBalance}`);
+        }
+    }
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const status = await me.getDailyRewardStatus();
+    if (status.canClaim) {
+        const reward = await me.claimDailyReward();
+        console.log(`Claimed $${reward.amount}!`);
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Prestige (Current User Only)
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const info = await me.getPrestigeInfo();
+    console.log(`Current prestige: ${info.prestigeLevel}`);
+    console.log(`Portfolio value: $${info.totalPortfolioValue}`);
+
+    const result = await me.prestige();
+    if (result.success) {
+        console.log(`Now Prestige ${result.newPrestigeLevel}!`);
+        console.log(`Sold ${result.coinsSold} holdings for $${result.totalSaleValue}`);
+    } else {
+        console.log(`Prestige failed: ${result.error}`);
+    }
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const result = await me.prestige();
+    if (result.success) {
+        console.log(`Now Prestige ${result.newPrestigeLevel}!`);
+    } else {
+        console.log(`Prestige failed: ${result.error}`);
+    }
+    ```
+  </Tab>
+</Tabs>
+
+<Warning>
+  Prestiging sells **all** your coin holdings at market price and resets your cash balance to $100. This cannot be undone.
+</Warning>

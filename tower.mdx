@@ -1,0 +1,192 @@
+---
+title: Tower
+description: Climb 10 floors by picking a safe tile on each
+---
+
+Tower is a multi-step climbing game. Each floor has 3 tiles — one or more hide bombs. Pick a safe tile to advance to the next floor. Cash out at any point, or get blown up.
+
+---
+
+## Difficulty
+
+The difficulty affects how many bombs are on each floor and therefore how risky each step is. Use the `towerDifficulty` sentinels:
+
+| Sentinel | ID | Risk |
+|----------|----|------|
+| `towerDifficulty.EASY` | `"easy"` | Fewest bombs per floor |
+| `towerDifficulty.MEDIUM` | `"medium"` | Medium bombs per floor |
+| `towerDifficulty.HARD` | `"hard"` | Most bombs per floor |
+
+---
+
+## Starting a Game
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const game = await rugplaySDK.arcade.tower(
+        100,
+        rugplaySDK.towerDifficulty.EASY,
+    );
+
+    // With custom auto-cashout timeout (default 10s)
+    const game = await rugplaySDK.arcade.tower(
+        rugplaySDK.percent(10),
+        rugplaySDK.towerDifficulty.HARD,
+        15000, // 15s
+    );
+
+    // Disable auto-cashout
+    const game = await rugplaySDK.arcade.tower(
+        100,
+        rugplaySDK.towerDifficulty.MEDIUM,
+        null,
+    );
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const game = await rugplaySDK.arcade.tower(100, rugplaySDK.towerDifficulty.EASY);
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Revealing Tiles
+
+Each floor has tiles at index `0`, `1`, or `2`. You can only reveal one tile per floor.
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const result = await game.reveal(0); // left tile
+    const result = await game.reveal(1); // middle tile
+    const result = await game.reveal(2); // right tile
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const result = await game.reveal(1); // middle tile
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Handling Results
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const result = await game.reveal(1);
+
+    if (result === rugplaySDK.results.TOWER_HIT) {
+        console.log("Hit a bomb! Game over.");
+    } else if (result === rugplaySDK.results.TOWER_SAFE) {
+        console.log(`Floor ${game.currentFloor} cleared! Multiplier: ${game.lastMultiplier}x`);
+    } else if (result === rugplaySDK.results.TOWER_COMPLETE) {
+        console.log("All 10 floors cleared!");
+    }
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const result = await game.reveal(1);
+
+    if (result === rugplaySDK.results.TOWER_HIT) {
+        console.log("Hit a bomb!");
+    } else if (result === rugplaySDK.results.TOWER_SAFE) {
+        console.log(`Floor ${game.currentFloor}, multiplier: ${game.lastMultiplier}x`);
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Cashing Out
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const cashout = await game.cashout();
+
+    console.log(`Payout: $${cashout.payout}`);
+    console.log(`Wagered: $${cashout.amountWagered}`);
+    console.log(`New balance: $${cashout.newBalance}`);
+    console.log(`Bomb positions: ${JSON.stringify(cashout.bombPositions)}`);
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const cashout = await game.cashout();
+    console.log(`Won $${cashout.payout}`);
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Game State Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `active` | `boolean` | Whether the game is still in progress |
+| `sessionToken` | `string` | Session token for this game |
+| `difficulty` | `TowerDifficultySentinel` | Difficulty level |
+| `bet` | `number` | Amount wagered |
+| `currentFloor` | `number` | Current floor (1–10, 0 before first reveal) |
+| `lastMultiplier` | `number \| null` | Multiplier after last safe reveal |
+
+---
+
+## Full Example
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const game = await rugplaySDK.arcade.tower(
+        rugplaySDK.percent(5),
+        rugplaySDK.towerDifficulty.EASY,
+        20000, // 20s auto-cashout
+    );
+
+    // Climb until floor 5 or until we hit a bomb
+    while (game.active && game.currentFloor < 5) {
+        const result = await game.reveal(1); // always pick middle
+
+        if (result === rugplaySDK.results.TOWER_HIT) {
+            console.log(`Blown up on floor ${game.currentFloor}!`);
+            break;
+        }
+
+        console.log(`Floor ${game.currentFloor} cleared. ${game.lastMultiplier}x`);
+    }
+
+    if (game.active) {
+        const cashout = await game.cashout();
+        console.log(`Cashed out $${cashout.payout} after ${game.currentFloor} floors`);
+    }
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const game = await rugplaySDK.arcade.tower(
+        rugplaySDK.percent(5),
+        rugplaySDK.towerDifficulty.EASY,
+    );
+
+    while (game.active && game.currentFloor < 5) {
+        const result = await game.reveal(1);
+        if (result === rugplaySDK.results.TOWER_HIT) break;
+        console.log(`Floor ${game.currentFloor}: ${game.lastMultiplier}x`);
+    }
+
+    if (game.active) {
+        const cashout = await game.cashout();
+        console.log(`Won $${cashout.payout}`);
+    }
+    ```
+  </Tab>
+</Tabs>

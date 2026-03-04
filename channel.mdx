@@ -1,0 +1,112 @@
+---
+title: Channel
+description: Group channels and direct messages
+---
+
+Channels are the containers for Chat messages. They can be group channels or direct message threads.
+
+---
+
+## Getting a Channel
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const channel = await rugplaySDK.Channel(123);
+    console.log(channel.name);
+    console.log(channel.memberCount);
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const channel = await rugplaySDK.Channel(123);
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Creating a Channel
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const user1 = await rugplaySDK.User("itoj");
+    const user2 = await rugplaySDK.User("felix");
+
+    const channel = await rugplaySDK.Channel.create("My Group", [user1, user2]);
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const channel = await rugplaySDK.Channel.create("My Group", [user1, user2]);
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Direct Message Channel
+
+Opens or retrieves the existing DM channel with a user.
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const user = await rugplaySDK.User("itoj");
+    const dm   = await rugplaySDK.Channel.dm(user);
+    await dm.send("Hey!");
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const dm = await rugplaySDK.Channel.dm(user);
+    await dm.send("Hey!");
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Sending Messages
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    await channel.send("Hello everyone!");
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    await channel.send("Hello!");
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Sending a Rugpay Request
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    await channel.sendRugpay(500, "split the bill");
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    await channel.sendRugpay(500, "split the bill");
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | `number` | Channel ID |
+| `name` | `string \| null` | Channel name (null for DMs) |
+| `memberCount` | `number` | Number of members |
+| `createdAt` | `Date` | Creation date |

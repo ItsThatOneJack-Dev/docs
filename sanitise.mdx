@@ -1,0 +1,106 @@
+---
+title: HTML Sanitisation
+description: Safely escape and sanitise user-generated HTML
+---
+
+Two helper functions for safely handling user-generated content in script UIs or formatted output.
+
+---
+
+## escapeHTML
+
+Escapes a plain string for safe insertion into HTML. No tags are preserved — everything is entity-encoded.
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    rugplaySDK.helpers.escapeHTML('<script>alert("xss")</script>');
+    // → &lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;
+
+    rugplaySDK.helpers.escapeHTML("it's a <b>trap</b>");
+    // → it&#39;s a &lt;b&gt;trap&lt;/b&gt;
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    rugplaySDK.helpers.escapeHTML('<script>alert("xss")</script>');
+    // → &lt;script&gt;alert(&quot;xss&quot;)&lt;/script&gt;
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## sanitiseHTML
+
+Sanitises an HTML string while preserving a specific set of allowlisted tags. All other tags are escaped. Unsafe attributes are stripped from allowlisted tags.
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    rugplaySDK.helpers.sanitiseHTML(
+        '<b>Hello</b> <a href="/user/itoj">itoj</a> <script>bad()</script>',
+        ["b", "a"],
+    );
+    // → <b>Hello</b> <a href="/user/itoj">itoj</a> &lt;script&gt;bad()&lt;/script&gt;
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    rugplaySDK.helpers.sanitiseHTML(input, ["b", "a", "i", "em", "strong"]);
+    ```
+  </Tab>
+</Tabs>
+
+### What Gets Stripped
+
+The sanitiser always strips regardless of allowlist:
+
+- **Event handler attributes** — `onclick`, `onmouseover`, `onerror`, etc.
+- **JavaScript links** — `href="javascript:..."`, `src="javascript:..."`, including entity-encoded variants like `href="&#106;avascript:..."`
+- **Entity bypass attempts** — `&lt;`, `&gt;`, `&amp;` in text nodes are re-encoded so they cannot decode back to dangerous characters
+- **CDATA sections** — `<![CDATA[` is always escaped
+
+### Raw Text Elements
+
+`<script>` and `<style>` tags, if included in the allowlist, have their content passed through **unescaped** — since entity-encoding inside these would break the JS or CSS. Any `</` sequences inside their content are rewritten as `<\/` to prevent premature tag closure.
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    rugplaySDK.helpers.sanitiseHTML(
+        '<style>body { color: red; }</style>',
+        ["style"],
+    );
+    // → <style>body { color: red; }</style>  ✓ content untouched
+
+    rugplaySDK.helpers.sanitiseHTML(
+        "<script>document.write(\"</script>\");</script>",
+        ["script"],
+    );
+    // → <script>document.write("<\/script>");</script>  ✓ safely rewritten
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    rugplaySDK.helpers.sanitiseHTML('<style>body{color:red}</style>', ["style"]);
+    ```
+  </Tab>
+</Tabs>
+
+### Allowlist Examples
+
+```ts
+// Blog comment (no links)
+sanitiseHTML(input, ["b", "i", "em", "strong", "br"]);
+
+// Rich comment (with links)
+sanitiseHTML(input, ["b", "i", "a", "em", "strong", "br", "code", "pre"]);
+
+// Injecting user-provided styles
+sanitiseHTML(input, ["style"]);
+```
+
+<Warning>
+  Only include `script` or `style` in the allowlist if you trust the source content. These tags can execute code or affect page appearance globally.
+</Warning>

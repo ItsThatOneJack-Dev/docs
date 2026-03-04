@@ -1,0 +1,216 @@
+---
+title: Achievements
+description: Achievement sentinels and search helpers
+---
+
+RugplaySDK ships with sentinels for every achievement in Rugplay. You can look them up by name, ID, category, or difficulty — and use them to claim rewards.
+
+---
+
+## Accessing Sentinels
+
+Every achievement has a sentinel accessible by its derived ID (uppercased name, spaces replaced with underscores, punctuation stripped):
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    rugplaySDK.achievements.CLOUD_9         // "Cloud 9"
+    rugplaySDK.achievements.BABYS_FIRST_BUY // "Baby's First Buy"
+    rugplaySDK.achievements.MILLIONAIRE     // "Millionaire"
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    rugplaySDK.achievements.CLOUD_9
+    rugplaySDK.achievements.MILLIONAIRE
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Searching Achievements
+
+<AccordionGroup>
+  <Accordion title="getByName(query) — fuzzy search">
+    Returns achievements sorted by name similarity to the query (Levenshtein distance).
+
+    <Tabs>
+      <Tab title="TypeScript">
+        ```ts
+        const matches = rugplaySDK.achievements.getByName("cloud");
+        console.log(matches[0].name); // "Cloud 9"
+        ```
+      </Tab>
+      <Tab title="JavaScript">
+        ```js
+        const matches = rugplaySDK.achievements.getByName("cloud");
+        ```
+      </Tab>
+    </Tabs>
+  </Accordion>
+
+  <Accordion title="getByDescription(query) — fuzzy search">
+    Returns achievements sorted by description similarity.
+
+    <Tabs>
+      <Tab title="TypeScript">
+        ```ts
+        const matches = rugplaySDK.achievements.getByDescription("buy a coin");
+        ```
+      </Tab>
+      <Tab title="JavaScript">
+        ```js
+        const matches = rugplaySDK.achievements.getByDescription("buy a coin");
+        ```
+      </Tab>
+    </Tabs>
+  </Accordion>
+
+  <Accordion title="getByID(id) — exact match">
+    Returns the achievement with the given API ID, or `undefined`.
+
+    <Tabs>
+      <Tab title="TypeScript">
+        ```ts
+        const achievement = rugplaySDK.achievements.getByID(42);
+        ```
+      </Tab>
+      <Tab title="JavaScript">
+        ```js
+        const achievement = rugplaySDK.achievements.getByID(42);
+        ```
+      </Tab>
+    </Tabs>
+  </Accordion>
+
+  <Accordion title="getByDerivedID(derivedId) — exact match">
+    Returns the achievement by its derived ID string.
+
+    <Tabs>
+      <Tab title="TypeScript">
+        ```ts
+        const achievement = rugplaySDK.achievements.getByDerivedID("cloud_9");
+        ```
+      </Tab>
+      <Tab title="JavaScript">
+        ```js
+        const achievement = rugplaySDK.achievements.getByDerivedID("cloud_9");
+        ```
+      </Tab>
+    </Tabs>
+  </Accordion>
+
+  <Accordion title="getByCategory(category)">
+    Returns all achievements in a category. Categories: `trading`, `wealth`, `creation`, `arcade`, `streaks`, `prestige`, `hopium`, `social`, `shop`, `special`.
+
+    <Tabs>
+      <Tab title="TypeScript">
+        ```ts
+        const arcade = rugplaySDK.achievements.getByCategory("arcade");
+        ```
+      </Tab>
+      <Tab title="JavaScript">
+        ```js
+        const arcade = rugplaySDK.achievements.getByCategory("arcade");
+        ```
+      </Tab>
+    </Tabs>
+  </Accordion>
+
+  <Accordion title="getByDifficulty(difficulty)">
+    Returns all achievements at a difficulty level. Difficulties: `easy`, `medium`, `hard`, `legendary`.
+
+    <Tabs>
+      <Tab title="TypeScript">
+        ```ts
+        const legendary = rugplaySDK.achievements.getByDifficulty("legendary");
+        ```
+      </Tab>
+      <Tab title="JavaScript">
+        ```js
+        const legendary = rugplaySDK.achievements.getByDifficulty("legendary");
+        ```
+      </Tab>
+    </Tabs>
+  </Accordion>
+
+  <Accordion title="all()">
+    Returns every achievement sentinel.
+
+    <Tabs>
+      <Tab title="TypeScript">
+        ```ts
+        const all = rugplaySDK.achievements.all();
+        console.log(`${all.length} achievements`);
+        ```
+      </Tab>
+      <Tab title="JavaScript">
+        ```js
+        const all = rugplaySDK.achievements.all();
+        ```
+      </Tab>
+    </Tabs>
+  </Accordion>
+</AccordionGroup>
+
+---
+
+## Claiming Achievements
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const me = await rugplaySDK.User.me();
+
+    // Find unclaimed unlocked achievements
+    const claimable = await me.getAchievements({ unlocked: true, claimed: false });
+
+    for (const ua of claimable) {
+        const reward = await me.claimAchievement(ua.achievement);
+        console.log(`${ua.achievement.name}: $${reward.cashReward}, ${reward.gemReward} gems`);
+    }
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const me = await rugplaySDK.User.me();
+    const claimable = await me.getAchievements({ unlocked: true, claimed: false });
+
+    for (const ua of claimable) {
+        const reward = await me.claimAchievement(ua.achievement);
+        console.log(`${ua.achievement.name}: $${reward.cashReward}`);
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## AchievementSentinel Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | `number` | API achievement ID |
+| `name` | `string` | Display name |
+| `description` | `string` | Achievement description |
+| `category` | `string` | Category |
+| `difficulty` | `string` | Difficulty level |
+| `cashReward` | `number` | Cash reward on claim |
+| `gemReward` | `number` | Gem reward on claim |
+| `derivedId` | `string` | Derived ID used for the sentinel key |
+
+---
+
+## UserAchievement Properties
+
+Returned by `me.getAchievements()`:
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `achievement` | `AchievementSentinel` | The achievement |
+| `unlocked` | `boolean` | Whether you have unlocked it |
+| `unlockedAt` | `Date \| null` | When you unlocked it |
+| `claimed` | `boolean` | Whether you have claimed the reward |
+| `progress` | `number \| null` | Current progress toward unlock |
+| `targetValue` | `number \| null` | Target value needed to unlock |

@@ -1,0 +1,66 @@
+---
+title: Comment
+description: Comments on coins
+---
+
+Comments are returned by `coin.getComments()`. You can post a comment with `coin.comment()`.
+
+---
+
+## Getting Comments
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const coin     = await rugplaySDK.Coin("CATBOI");
+    const comments = await coin.getComments();
+
+    for (const c of comments) {
+        console.log(`${c.username}: ${c.content} (${c.likesCount} likes)`);
+    }
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const comments = await coin.getComments();
+    for (const c of comments) {
+        console.log(`${c.username}: ${c.content}`);
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Posting a Comment
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const result = await coin.comment("this coin is going to the moon 🚀");
+    if (result === rugplaySDK.results.SUCCESS) {
+        console.log("Comment posted!");
+    }
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    await coin.comment("this coin is going to the moon 🚀");
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Properties
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `id` | `number` | Comment ID |
+| `content` | `string` | Comment text |
+| `createdAt` | `Date` | When posted |
+| `likesCount` | `number` | Number of likes |
+| `isLiked` | `boolean` | Whether you have liked it |
+| `username` | `string` | Poster's username |
+| `coinSymbol` | `string` | Symbol of the coin |
+| `user` | `User \| null` | Poster (lazily resolved) |

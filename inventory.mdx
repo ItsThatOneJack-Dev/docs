@@ -1,0 +1,64 @@
+---
+title: Inventory
+description: Check your gem balance and owned name styles
+---
+
+All shop and inventory methods are on the current `User` and require being logged in.
+
+---
+
+## Gem Balance
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const me   = await rugplaySDK.User.me();
+    const gems = await me.getGems();
+    console.log(`You have ${gems} gems`);
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const gems = await me.getGems();
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Full Inventory
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const inventory = await me.getInventory();
+    console.log(`Gems: ${inventory.gems}`);
+    console.log(`Owned styles: ${inventory.ownedNameStyles.map(s => s.id).join(", ")}`);
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const inventory = await me.getInventory();
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Owned Name Styles
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const styles = await me.getOwnedNameStyles();
+    for (const style of styles) {
+        console.log(style.id); // e.g. "gold", "rainbow"
+    }
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const styles = await me.getOwnedNameStyles();
+    ```
+  </Tab>
+</Tabs>

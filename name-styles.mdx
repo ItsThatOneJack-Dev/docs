@@ -1,0 +1,84 @@
+---
+title: Name Styles
+description: Equip and unequip name styles
+---
+
+Name styles change the colour or appearance of your username in chat and on your profile.
+
+---
+
+## Equipping a Style
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const me = await rugplaySDK.User.me();
+    await me.equipNameStyle(rugplaySDK.nameStyles.GOLD);
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    await me.equipNameStyle(rugplaySDK.nameStyles.RAINBOW);
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Unequipping
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    await me.unequipNameStyle();
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    await me.unequipNameStyle();
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Checking Equipped Style
+
+Works on any user, always fetches live.
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const user  = await rugplaySDK.User("itoj");
+    const style = await user.getEquippedNameStyle();
+
+    if (style) {
+        console.log(`${user.username} has ${style.id} equipped`);
+    } else {
+        console.log("No style equipped");
+    }
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const style = await user.getEquippedNameStyle();
+    if (style) console.log(style.id);
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Available Styles
+
+| Sentinel | ID |
+|----------|----|
+| `nameStyles.DEFAULT` | `"default"` |
+| `nameStyles.GOLD` | `"gold"` |
+| `nameStyles.DIAMOND` | `"diamond"` |
+| `nameStyles.RAINBOW` | `"rainbow"` |
+| `nameStyles.OCEAN` | `"ocean"` |
+| `nameStyles.PURPLE` | `"purple"` |
+| `nameStyles.GREEN` | `"green"` |
+| `nameStyles.RED` | `"red"` |
+| `nameStyles.ORANGE` | `"orange"` |

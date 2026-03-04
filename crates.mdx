@@ -1,0 +1,50 @@
+---
+title: Crates
+description: Open crates to win name styles
+---
+
+Crates give a chance to win name styles. Use `crateTiers` sentinels to specify which tier to open.
+
+---
+
+## Opening a Crate
+
+<Tabs>
+  <Tab title="TypeScript">
+    ```ts
+    const me     = await rugplaySDK.User.me();
+    const reward = await me.openCrate(rugplaySDK.crateTiers.LEGENDARY);
+
+    if (reward.type === "cash") {
+        console.log(`Won $${reward.amount} cash`);
+    } else {
+        console.log(`Won name style: ${reward.nameStyle.id}`);
+        console.log(`Rarity: ${reward.rarity}`);
+        if (reward.alreadyOwned) {
+            console.log("(already owned — converted to cash)");
+        }
+    }
+    ```
+  </Tab>
+  <Tab title="JavaScript">
+    ```js
+    const reward = await me.openCrate(rugplaySDK.crateTiers.PREMIUM);
+    if (reward.type === "cash") {
+        console.log(`Won $${reward.amount}`);
+    } else {
+        console.log(`Won: ${reward.nameStyle.id}`);
+    }
+    ```
+  </Tab>
+</Tabs>
+
+---
+
+## Crate Tiers
+
+| Sentinel | Description |
+|----------|-------------|
+| `crateTiers.STANDARD` | Basic crate |
+| `crateTiers.PREMIUM` | Better odds |
+| `crateTiers.LEGENDARY` | High value rewards |
+| `crateTiers.MYTHIC` | Rarest rewards |

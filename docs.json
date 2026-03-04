@@ -35,23 +35,64 @@
                 ]
               },
               {
-                "version": "Version 1.2",
+                "version": "V2",
                 "default": true,
-                "groups": [
+                "pages": [
+                  "introduction",
+                  "quickstart",
+                  "configuration",
                   {
-                    "group": "Setup",
+                    "group": "Classes",
                     "pages": [
-                      "importing-copied-1"
+                      "user",
+                      "coin",
+                      "channel",
+                      "message",
+                      "rugpay-request",
+                      "comment",
+                      "hopium"
                     ]
                   },
                   {
-                    "group": "Capabilities",
+                    "group": "Arcade",
                     "pages": [
-                      "getting-data-copied-1",
-                      "using-events-copied-1",
-                      "sending-data-copied-1",
-                      "amounts-copied-1",
-                      "objects-copied-1"
+                      "overview",
+                      "coinflip-dice-and-slots",
+                      "mines",
+                      "tower"
+                    ]
+                  },
+                  {
+                    "group": "Websockets",
+                    "pages": [
+                      "chat",
+                      "events"
+                    ]
+                  },
+                  {
+                    "group": "Shop",
+                    "pages": [
+                      "inventory",
+                      "crates",
+                      "name-styles"
+                    ]
+                  },
+                  {
+                    "group": "Helpers",
+                    "pages": [
+                      "backoff",
+                      "sanitise",
+                      "levenshtein"
+                    ]
+                  },
+                  {
+                    "group": "Reference",
+                    "pages": [
+                      "results",
+                      "sentinels",
+                      "achievements",
+                      "leaderboard",
+                      "info"
                     ]
                   }
                 ]
